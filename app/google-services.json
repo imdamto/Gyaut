@@ -1,0 +1,63 @@
+{
+  "project_info": {
+    "project_number": "989652079218",
+    "project_id": "gyaut-app",
+    "storage_bucket": "gyaut-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:989652079218:android:250bca1efe65eb222068eb",
+        "android_client_info": {
+          "package_name": "com.gyaut.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "989652079218-eglirmt8b7356j7mvbuo1tp9ir8ilais.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gyaut.app",
+            "certificate_hash": "4a49d17d27bb8db77cddfa345767a424c1527121"
+          }
+        },
+        {
+          "client_id": "989652079218-ppvsp6tm3vt1a52rs8i8f5tb7vpmof32.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gyaut.app",
+            "certificate_hash": "df235b67124fb1759d58ce9feed4a60cf252ec6b"
+          }
+        },
+        {
+          "client_id": "989652079218-r704l2ad6cm9rrb96h2c2kv66ta690mh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gyaut.app",
+            "certificate_hash": "074b996b4097b0b80146dfdb09b46ca144a9c5d8"
+          }
+        },
+        {
+          "client_id": "989652079218-9k7p8b44ldlurgqqh6rl1sl8skm5kntt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAA-MiZJLEtzQ1mjR0a6cE8mo9aFTwqHJQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "989652079218-9k7p8b44ldlurgqqh6rl1sl8skm5kntt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
