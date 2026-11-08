@@ -1,5 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 시안 A '밤 강의실' (다크) -->
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- 화면 배경: 아주 짙은 남색 (밤하늘 같은 검은 남색) -->
+    <color name="bg">#171B2E</color>
+    <!-- 카드 배경: 배경보다 한 단계 밝은 짙은 남색 -->
+    <color name="surface">#232943</color>
+    <!-- 카드 안 칸·입력창: 카드보다 한 단계 더 밝은 남색 -->
+    <color name="surface2">#2E3555</color>
+    <!-- 구분선·테두리: 회색빛 남색 -->
+    <color name="line">#2F3655</color>
+    <!-- 본문 글자: 살짝 푸른 기가 도는 흰색 -->
+    <color name="text">#F3F4F8</color>
+    <!-- 보조 글자: 연한 보랏빛 회색 -->
+    <color name="text2">#A3A9C2</color>
+    <!-- 메인(갸웃 버튼·주요 버튼): 따뜻한 노랑 (개나리색보다 살짝 진한) -->
+    <color name="primary">#F7C948</color>
+    <!-- 노란 버튼 위 글자: 아주 짙은 남색 (흰 글자는 노랑 위에서 안 보여요) -->
+    <color name="onPrimary">#1B1F33</color>
+    <!-- 강조(LIVE 표시·갸웃 많음·공감 많은 질문): 밝은 다홍빛 빨강 -->
+    <color name="live">#FF7070</color>
 </resources>
