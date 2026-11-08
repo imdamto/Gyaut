@@ -15,7 +15,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        Class<?> next = (user != null) ? CourseListActivity.class : LoginActivity.class;
+        Class<?> next = LoginActivity.class;
         startActivity(new Intent(this, next));
         finish();
     }
