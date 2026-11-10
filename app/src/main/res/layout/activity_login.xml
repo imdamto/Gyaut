@@ -1,41 +1,146 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- 키보드가 올라와도 아래 내용을 스크롤해서 볼 수 있게 ScrollView로 감쌈 -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="24dp"
-    android:background="@color/bg">
+    android:background="@color/bg"
+    android:fillViewport="true">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="이 페이지는 LoginActivity 페이지입니다"
-        android:textColor="@color/text"
-        android:textSize="18sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="로그인 화면 완성 전까지 쓰는 임시 메뉴"
-        android:textColor="@color/text2"
-        android:textSize="13sp" />
-
-    <Button
-        android:id="@+id/btnGoClass"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:text="ClassActivity로 이동 (실시간 이해도)" />
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="24dp">
 
-    <Button
-        android:id="@+id/btnGoQuestion"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="QuestionListActivity로 이동 (질문)" />
+        <!-- 로고 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="64dp"
+            android:text="\?"
+            android:textColor="@color/primary"
+            android:textSize="56sp"
+            android:textStyle="bold" />
 
-</LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="갸웃"
+            android:textColor="@color/text"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="손들지 않아도 통하는 강의실"
+            android:textColor="@color/text2"
+            android:textSize="14sp" />
+
+        <!-- 이메일 입력창 -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/inputEmail"
+            style="@style/Widget.Gyaut.TextInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="48dp"
+            android:hint="이메일">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textEmailAddress"
+                android:textColor="@color/text" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- 비밀번호 입력창 (오른쪽 눈 아이콘으로 보기/숨기기) -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/inputPassword"
+            style="@style/Widget.Gyaut.TextInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:hint="비밀번호"
+            app:endIconMode="password_toggle"
+            app:endIconTint="@color/text2">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:textColor="@color/text" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- 로그인 버튼 -->
+        <Button
+            android:id="@+id/btnLogin"
+            style="@style/Widget.Gyaut.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="로그인" />
+
+        <!-- 회원가입으로 이동 -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="처음이에요?"
+                android:textColor="@color/text2"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/textGoSignUp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="회원가입"
+                android:textColor="@color/primary"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- 과목 → 수업 화면 연결되면 아래 임시 메뉴 삭제할게요 -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="40dp"
+            android:background="@color/line" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="임시 메뉴 · 테스트 계정으로 바로 이동"
+            android:textColor="@color/text2"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/btnGoClass"
+            style="@style/Widget.Gyaut.Button.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="ClassActivity로 이동 (실시간 이해도)" />
+
+        <Button
+            android:id="@+id/btnGoQuestion"
+            style="@style/Widget.Gyaut.Button.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="QuestionListActivity로 이동 (질문)" />
+
+    </LinearLayout>
+</ScrollView>
