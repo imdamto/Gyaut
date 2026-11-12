@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 선택 버튼 글자: 선택되면 짙은 남색, 아니면 보조 글자색 -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/onPrimary" android:state_checked="true" />
+    <item android:color="@color/text2" />
+</selector>

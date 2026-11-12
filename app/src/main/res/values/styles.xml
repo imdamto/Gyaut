@@ -21,6 +21,17 @@
         <item name="cornerRadius">12dp</item>
     </style>
 
+    <!-- 둘 중 하나 고르는 선택 버튼 (학생/교수, 요일) -->
+    <style name="Widget.Gyaut.Button.Toggle" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="backgroundTint">@color/toggle_bg</item>
+        <item name="android:textColor">@color/toggle_text</item>
+        <item name="strokeColor">@color/line</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="cornerRadius">12dp</item>
+    </style>
+
     <!-- 입력창 -->
     <style name="Widget.Gyaut.TextInput" parent="Widget.Material3.TextInputLayout.OutlinedBox">
         <item name="boxBackgroundColor">@color/surface2</item>

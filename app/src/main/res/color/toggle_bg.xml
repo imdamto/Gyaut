@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 선택 버튼 배경: 선택되면 노랑, 아니면 입력창 색 -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/primary" android:state_checked="true" />
+    <item android:color="@color/surface2" />
+</selector>
