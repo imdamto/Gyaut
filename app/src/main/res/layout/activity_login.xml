@@ -96,7 +96,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="처음이에요?"
+                android:text="처음인가요?"
                 android:textColor="@color/text2"
                 android:textSize="14sp" />
 
@@ -111,7 +111,7 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- 과목 → 수업 화면 연결되면 아래 임시 메뉴 삭제할게요 -->
+        <!-- TODO: 과목 → 수업 화면 연결되면 아래 임시 메뉴 삭제할게요 -->
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
