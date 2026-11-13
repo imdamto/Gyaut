@@ -18,6 +18,7 @@ import com.gyaut.app.course.CourseListActivity;
 import com.gyaut.app.databinding.ActivityLoginBinding;
 import com.gyaut.app.question.QuestionListActivity;
 import com.gyaut.app.realtime.ClassActivity;
+import com.gyaut.app.realtime.PodiumActivity;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -39,9 +40,10 @@ public class LoginActivity extends AppCompatActivity {
         binding.textGoSignUp.setOnClickListener(v ->
                 startActivity(new Intent(this, SignUpActivity.class)));
 
-        // TODO: 과목 → 수업 화면 연결되면 임시 버튼 두 개와 testLoginThenGo() 삭제 예정
-        binding.btnGoClass.setOnClickListener(v -> testLoginThenGo(ClassActivity.class));
-        binding.btnGoQuestion.setOnClickListener(v -> testLoginThenGo(QuestionListActivity.class));
+        // TODO: 과목 → 수업 화면 연결되면 임시 버튼 세 개와 testLoginThenGo() 삭제 예정
+        binding.btnGoClass.setOnClickListener(v -> testLoginThenGo("student1@gyaut.test", ClassActivity.class));
+        binding.btnGoQuestion.setOnClickListener(v -> testLoginThenGo("student1@gyaut.test", QuestionListActivity.class));
+        binding.btnGoPodium.setOnClickListener(v -> testLoginThenGo("prof1@gyaut.test", PodiumActivity.class));
     }
 
     // 입력값 검사 후 Firebase 로그인
@@ -104,10 +106,10 @@ public class LoginActivity extends AppCompatActivity {
         return text == null ? "" : text.toString();
     }
 
-    // 테스트 학생 계정으로 로그인한 다음 그 화면으로 이동
-    private void testLoginThenGo(Class<?> target) {
+    // 테스트 계정으로 로그인한 다음 그 화면으로 이동
+    private void testLoginThenGo(String email, Class<?> target) {
         FirebaseAuth.getInstance()
-                .signInWithEmailAndPassword("student1@gyaut.test", "test1234")
+                .signInWithEmailAndPassword(email, "test1234")
                 .addOnSuccessListener(r -> startActivity(new Intent(this, target)))
                 .addOnFailureListener(e -> Toast.makeText(this,
                         "테스트 로그인 실패: " + e.getMessage(), Toast.LENGTH_LONG).show());

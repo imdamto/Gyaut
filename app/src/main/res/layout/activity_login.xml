@@ -142,5 +142,13 @@
             android:layout_marginTop="8dp"
             android:text="QuestionListActivity로 이동 (질문)" />
 
+        <Button
+            android:id="@+id/btnGoPodium"
+            style="@style/Widget.Gyaut.Button.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="PodiumActivity로 이동 (교탁 모드 · 교수)" />
+
     </LinearLayout>
 </ScrollView>
