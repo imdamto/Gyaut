@@ -12,35 +12,74 @@
         android:orientation="vertical"
         android:padding="24dp">
 
-        <!-- 과목이름이랑 LIVE 한줄에 -->
+        <!-- 위쪽: 왼쪽 과목정보, 오른쪽 LIVE -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/tvCourseName"
+            <!-- 과목명 + 주차·시간 두줄 -->
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="과목 이름"
-                android:textColor="@color/text2"
-                android:textSize="14sp" />
+                android:orientation="vertical">
 
-            <TextView
+                <TextView
+                    android:id="@+id/tvCourseName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="과목 이름"
+                    android:textColor="@color/text"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvCourseInfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="0주차 · 00:00–00:00"
+                    android:textColor="@color/text2"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <!-- LIVE 분홍 알약모양 -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="● LIVE"
-                android:textColor="@color/live"
-                android:textSize="13sp"
-                android:textStyle="bold" />
+                app:cardBackgroundColor="@color/liveBg"
+                app:cardCornerRadius="50dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="12dp"
+                    android:paddingTop="6dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="6dp"
+                    android:text="● LIVE"
+                    android:textColor="@color/live"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
+
+        <!-- 구분선 -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="16dp"
+            android:background="@color/line" />
 
         <TextView
             android:id="@+id/tvTopic"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="20dp"
             android:text="수업 주제"
             android:textColor="@color/text"
             android:textSize="22sp"
@@ -127,6 +166,31 @@
             </com.google.android.material.card.MaterialCardView>
 
         </FrameLayout>
+
+        <!-- 지금 갸웃 누른 사람 수. 숫자는 나중에 자바로 바꿈 -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvGyautCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0명"
+                android:textColor="@color/primary"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="이 함께 궁금해하고 있어요"
+                android:textColor="@color/text2"
+                android:textSize="15sp" />
+        </LinearLayout>
 
         <View
             android:layout_width="match_parent"
