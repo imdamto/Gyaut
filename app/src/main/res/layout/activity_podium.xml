@@ -63,5 +63,123 @@
             android:layout_marginTop="16dp"
             android:background="@color/line" />
 
+        <!-- 가운데: 갸웃 비율 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="24dp"
+            android:text="지금 학생들의 갸웃"
+            android:textColor="@color/text2"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/tvPercent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="0%"
+            android:textColor="@color/live"
+            android:textSize="96sp"
+            android:textStyle="bold" />
+
+        <!-- 몇명 중 몇명. 숫자만 빨갛게 하려고 3개로 나눔 -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvTotal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0명 중"
+                android:textColor="@color/text"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvConfusedCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:text="0명"
+                android:textColor="@color/live"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="이 궁금해해요"
+                android:textColor="@color/text"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- 비율 막대 -->
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/barPercent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:max="100"
+            android:progress="0"
+            app:trackThickness="12dp"
+            app:trackCornerRadius="6dp"
+            app:indicatorColor="@color/live"
+            app:trackColor="@color/surface2"
+            app:indicatorTrackGapSize="0dp"
+            app:trackStopIndicatorSize="0dp" />
+
+        <!-- 실시간 질문 제목 + 개수 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="실시간 질문"
+                android:textColor="@color/text"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/surface2"
+                app:cardCornerRadius="50dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
+
+                <TextView
+                    android:id="@+id/tvQuestionCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="12dp"
+                    android:paddingTop="4dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="4dp"
+                    android:text="0개"
+                    android:textColor="@color/text2"
+                    android:textSize="13sp" />
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <!-- 질문 목록. 내용은 자바에서 어댑터로 채움 -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvQuestions"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_marginTop="12dp" />
+
     </LinearLayout>
+
 </LinearLayout>
