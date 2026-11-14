@@ -7,6 +7,7 @@ import android.util.Patterns;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.FirebaseNetworkException;
@@ -14,6 +15,7 @@ import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
+import com.gyaut.app.common.WindowInsetsHelper;
 import com.gyaut.app.course.CourseListActivity;
 import com.gyaut.app.databinding.ActivityLoginBinding;
 import com.gyaut.app.question.QuestionListActivity;
@@ -28,8 +30,10 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        WindowInsetsHelper.applyTo(binding.getRoot());
 
         auth = FirebaseAuth.getInstance();
 
@@ -82,7 +86,7 @@ public class LoginActivity extends AppCompatActivity {
     // 로그인 중에는 버튼을 막아서 여러 번 눌리지 않게
     private void setLoading(boolean loading) {
         binding.btnLogin.setEnabled(!loading);
-        binding.btnLogin.setText(loading ? "로그인 중…" : "로그인");
+        binding.btnLogin.setText(loading ? "로그인 중..." : "로그인");
     }
 
     // Firebase 에러를 사용자가 알아들을 수 있는 문장으로
