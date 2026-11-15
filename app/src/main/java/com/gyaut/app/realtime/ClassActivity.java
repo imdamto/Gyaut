@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
+import android.os.CountDownTimer;
+import com.gyaut.app.R;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.gyaut.app.common.FirestorePaths;
 
@@ -26,6 +28,7 @@ public class ClassActivity extends AppCompatActivity {
 
     private ActivityClassBinding binding;
     private FirebaseFirestore db;
+    private CountDownTimer timer;
 
     // 일단 테스트 데이터로. 과목 화면에서 넘겨주면 그걸로 바뀜
     private String courseId = "test-course";
@@ -108,6 +111,12 @@ public class ClassActivity extends AppCompatActivity {
             Toast.makeText(this, "로그인이 필요해요", Toast.LENGTH_SHORT).show();
             return;
         }
+        // 누르는 순간 살짝 눌렸다 돌아오는 느낌
+        binding.cardGyaut.animate().scaleX(0.94f).scaleY(0.94f).setDuration(80)
+                .withEndAction(() ->
+                        binding.cardGyaut.animate().scaleX(1f).scaleY(1f).setDuration(120));
+
+
 
         Map<String, Object> data = new HashMap<>();
         data.put("pressedAt", FieldValue.serverTimestamp());
@@ -117,9 +126,49 @@ public class ClassActivity extends AppCompatActivity {
                 .collection(FirestorePaths.SESSIONS).document(sessionId)
                 .collection(FirestorePaths.CONFUSION).document(uid)
                 .set(data)
-                .addOnSuccessListener(unused ->
-                        Toast.makeText(this, "갸웃 전달됨", Toast.LENGTH_SHORT).show())
                 .addOnFailureListener(e ->
                         Toast.makeText(this, "전달 실패: " + e.getMessage(), Toast.LENGTH_LONG).show());
+        startTimer();
+    }
+
+
+    // 3분 타이머. 링 두개가 꽉 찼다가 같이 줄어듦
+    private void startTimer() {
+        // 이미 돌고 있으면 멈추고 처음부터
+        if (timer != null) {
+            timer.cancel();
+        }
+
+        // 누른 상태: 가운데 원만 살짝 주황으로
+        binding.gyautFace.setBackgroundResource(R.drawable.bg_gyaut_pressed);
+
+        timer = new CountDownTimer(FirestorePaths.CONFUSION_WINDOW_MS, 100) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                // 남은 시간을 0~1000으로 바꿔서 링 길이로
+                int progress = (int) (millisUntilFinished * 1000 / FirestorePaths.CONFUSION_WINDOW_MS);
+                binding.ringTimer.setProgress(progress);
+                binding.ringOuter.setProgress(progress);
+            }
+
+            @Override
+            public void onFinish() {
+                // 3분 끝 -> 링 다시 꽉 채우고 원 원래 색
+                binding.ringTimer.setProgress(1000);
+                binding.ringOuter.setProgress(1000);
+                binding.gyautFace.setBackgroundResource(R.drawable.bg_gyaut_normal);
+                timer = null;
+            }
+        };
+        timer.start();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // 화면 닫히면 타이머도 멈추기
+        if (timer != null) {
+            timer.cancel();
+        }
     }
 }

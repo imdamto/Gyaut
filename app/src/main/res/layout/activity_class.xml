@@ -125,35 +125,39 @@
             android:layout_height="320dp"
             android:layout_gravity="center_horizontal">
 
-            <!-- 바깥 큰 링. 안쪽 링이랑 같이 줄어듦 -->
+            <!-- 바깥 링. 평소엔 꽉 차있고 누르면 시계방향으로 줄어듦 -->
             <com.google.android.material.progressindicator.CircularProgressIndicator
                 android:id="@+id/ringOuter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:max="100"
-                android:progress="0"
+                android:max="1000"
+                android:progress="1000"
                 app:indicatorSize="320dp"
                 app:trackThickness="24dp"
-                app:indicatorColor="@color/gyautGlowFill"
-                app:trackColor="@color/gyautGlow"
+                app:indicatorColor="@color/gyautGlow"
+                app:trackColor="@android:color/transparent"
+                app:indicatorDirectionCircular="counterclockwise"
+                app:trackCornerRadius="0dp"
                 app:indicatorTrackGapSize="0dp" />
 
-            <!-- 안쪽 링. 누르면 100 -> 0 으로 줄어들게 할 예정 -->
+            <!-- 안쪽 링 -->
             <com.google.android.material.progressindicator.CircularProgressIndicator
                 android:id="@+id/ringTimer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:max="100"
-                android:progress="0"
+                android:max="1000"
+                android:progress="1000"
                 app:indicatorSize="272dp"
                 app:trackThickness="16dp"
-                app:indicatorColor="@color/primary"
-                app:trackColor="@color/gyautRing"
+                app:indicatorColor="@color/gyautRing"
+                app:trackColor="@android:color/transparent"
+                app:indicatorDirectionCircular="counterclockwise"
+                app:trackCornerRadius="0dp"
                 app:indicatorTrackGapSize="0dp" />
 
-            <!-- 노란 원 (실제로 누르는 부분) -->
+            <!-- 가운데 원 (실제로 누르는 부분) -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardGyaut"
                 android:layout_width="240dp"
@@ -162,13 +166,16 @@
                 android:clickable="true"
                 android:focusable="true"
                 app:cardCornerRadius="120dp"
-                app:cardBackgroundColor="@color/primary"
+                app:cardBackgroundColor="@android:color/transparent"
                 app:cardElevation="0dp"
                 app:strokeWidth="0dp">
 
+                <!-- 그라데이션은 여기 배경으로 깔림 -->
                 <LinearLayout
+                    android:id="@+id/gyautFace"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:background="@drawable/bg_gyaut_normal"
                     android:gravity="center"
                     android:orientation="vertical">
 

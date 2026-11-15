@@ -26,5 +26,7 @@
     <color name="gyautRing">#33F7C948</color>
     <color name="gyautGlow">#14F7C948</color>
     <color name="gyautGlowFill">#59F7C948</color>
+    <!-- 갸웃 눌렀을 때 살짝 주황 -->
+    <color name="gyautPressed">#F9B847</color>
 
 </resources>
