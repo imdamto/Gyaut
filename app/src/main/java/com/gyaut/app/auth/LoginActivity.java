@@ -22,25 +22,35 @@ import androidx.credentials.exceptions.NoCredentialException;
 
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.FirebaseNetworkException;
 import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.gyaut.app.R;
+import com.gyaut.app.common.FirestorePaths;
+import com.gyaut.app.common.UserRole;
 import com.gyaut.app.common.WindowInsetsHelper;
 import com.gyaut.app.course.CourseListActivity;
 import com.gyaut.app.databinding.ActivityLoginBinding;
+import com.gyaut.app.databinding.DialogSelectRoleBinding;
 import com.gyaut.app.question.QuestionListActivity;
 import com.gyaut.app.realtime.ClassActivity;
 import com.gyaut.app.realtime.PodiumActivity;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
 
     private ActivityLoginBinding binding;
     private FirebaseAuth auth;
+    private FirebaseFirestore db;
     private CredentialManager credentialManager;
 
     @Override
@@ -52,6 +62,7 @@ public class LoginActivity extends AppCompatActivity {
         WindowInsetsHelper.applyTo(binding.getRoot());
 
         auth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
         credentialManager = CredentialManager.create(this);
 
         // 로그인 버튼
@@ -143,7 +154,7 @@ public class LoginActivity extends AppCompatActivity {
         AuthCredential firebaseCredential = GoogleAuthProvider.getCredential(googleCredential.getIdToken(), null);
 
         auth.signInWithCredential(firebaseCredential)
-                .addOnSuccessListener(result -> goCourseList())
+                .addOnSuccessListener(result -> checkUserDoc(result.getUser()))
                 .addOnFailureListener(e -> {
                     setLoading(false);
                     String message = (e instanceof FirebaseNetworkException)
@@ -151,6 +162,63 @@ public class LoginActivity extends AppCompatActivity {
                             : "구글 로그인에 실패했어요";
                     Toast.makeText(this, message, Toast.LENGTH_LONG).show();
                 });
+    }
+
+    // users/{uid} 문서가 있으면 과목 목록으로, 없으면(처음 온 사람) 역할 묻기
+    private void checkUserDoc(FirebaseUser user) {
+        db.collection(FirestorePaths.USERS).document(user.getUid())
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        goCourseList();
+                    } else {
+                        askRole(user);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    undoGoogleLogin();
+                    Toast.makeText(this, "구글 로그인에 실패했어요. 다시 시도해 주세요", Toast.LENGTH_LONG).show();
+                });
+    }
+
+    // 처음 온 사람에게 학생/교수 묻기
+    private void askRole(FirebaseUser user) {
+        DialogSelectRoleBinding roleBinding = DialogSelectRoleBinding.inflate(getLayoutInflater());
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("반가워요, " + user.getDisplayName() + " 님")
+                .setMessage("학생인지 교수인지 골라 주세요")
+                .setView(roleBinding.getRoot())
+                .setPositiveButton("시작하기", (dialog, which) -> {
+                    String role = roleBinding.toggleRole.getCheckedButtonId() == R.id.btnRoleProfessor
+                            ? UserRole.PROFESSOR : UserRole.STUDENT;
+                    saveUser(user, role);
+                })
+                .setNegativeButton("취소", (dialog, which) -> undoGoogleLogin())
+                .setCancelable(false)
+                .show();
+    }
+
+    // users/{uid}에 구글 이름·이메일·역할 저장
+    private void saveUser(FirebaseUser user, String role) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("name", user.getDisplayName());
+        data.put("email", user.getEmail());
+        data.put("role", role);
+
+        db.collection(FirestorePaths.USERS).document(user.getUid())
+                .set(data)
+                .addOnSuccessListener(unused -> goCourseList())
+                .addOnFailureListener(e -> {
+                    undoGoogleLogin();
+                    Toast.makeText(this, "정보 저장에 실패했어요. 다시 시도해 주세요", Toast.LENGTH_LONG).show();
+                });
+    }
+
+    // 역할 저장까지 못 끝냈으면 로그인 상태를 되돌림
+    private void undoGoogleLogin() {
+        auth.signOut();
+        setLoading(false);
     }
 
     // 과목 목록으로 이동하고 로그인 화면은 닫기 (뒤로 가기로 돌아오지 않게)
