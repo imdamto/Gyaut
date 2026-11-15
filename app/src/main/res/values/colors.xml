@@ -19,9 +19,12 @@
     <color name="onPrimary">#1B1F33</color>
     <!-- 강조(LIVE 표시·갸웃 많음·공감 많은 질문): 밝은 다홍빛 빨강 -->
     <color name="live">#FF7070</color>
+    <!-- LIVE 뒤 분홍 배경 -->
+    <color name="liveBg">#33FF7070</color>
     <!-- 갸웃 버튼용 -->
     <color name="primaryDark">#E0B23A</color>
     <color name="gyautRing">#33F7C948</color>
     <color name="gyautGlow">#14F7C948</color>
     <color name="gyautGlowFill">#59F7C948</color>
+
 </resources>
