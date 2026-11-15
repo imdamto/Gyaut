@@ -22,7 +22,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".QuestionActivity"
+            android:name=".question.QuestionActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".question.QuestionListActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
@@ -51,10 +55,6 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".realtime.PodiumActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".question.QuestionListActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
     </application>

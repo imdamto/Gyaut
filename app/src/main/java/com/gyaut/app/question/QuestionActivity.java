@@ -1,4 +1,4 @@
-package com.gyaut.app;
+package com.gyaut.app.question;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -9,7 +9,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.gyaut.app.R;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,44 +55,49 @@ public class QuestionActivity extends AppCompatActivity {
                         Log.d("ButtonTest", "입력된 내용: [" + content + "]");
 
                         // 입력값 검사
-                        if (content.isEmpty()) {
-                            Log.d("ButtonTest", "입력값이 비어 있음");
-                            editQuestion.setError("질문을 입력하세요.");
+                        // 현재 로그인한 사용자 확인
+                        if (auth.getCurrentUser() == null) {
+                            Toast.makeText(this, "로그인이 필요합니다.",
+                                    Toast.LENGTH_SHORT).show();
                             return;
                         }
 
-                        Log.d("ButtonTest", "Firebase 저장 시작");
-
-                        // 5. 질문 데이터 생성
+// 질문 데이터 생성
                         Map<String, Object> question = new HashMap<>();
 
+                        question.put("authorUid", auth.getCurrentUser().getUid());
                         question.put("content", content);
-                        question.put("author", "student01");
+                        question.put("createdAt", FieldValue.serverTimestamp());
                         question.put("likeCount", 0);
+                        question.put("sessionId", "test-session");
+                        question.put("status", "visible");
+                        question.put("topic", "RecyclerView");
+                        question.put("week", 10);
 
-                        // 6. Firestore에 질문 저장
-                        db.collection("questions")
+// Firebase에 질문 저장
+                        String courseId = "test-course";
+                        db.collection("courses")
+                                .document(courseId)
+                                .collection("questions")
                                 .add(question)
                                 .addOnSuccessListener(documentReference -> {
 
-                                    Log.d("FirebaseTest", "질문 저장 성공");
-                                    Log.d("FirebaseTest", "문서 ID: "
-                                            + documentReference.getId());
-
-                                    Toast.makeText(QuestionActivity.this,
-                                            "질문이 등록되었습니다.",
+                                    Toast.makeText(this, "질문이 등록되었습니다.",
                                             Toast.LENGTH_SHORT).show();
 
-                                    // 입력창 초기화
                                     editQuestion.setText("");
+
+                                    Log.d("FirebaseTest",
+                                            "문서 ID: " + documentReference.getId());
+
                                 })
                                 .addOnFailureListener(e -> {
 
+                                    Toast.makeText(this, "질문 등록 실패",
+                                            Toast.LENGTH_SHORT).show();
+
                                     Log.e("FirebaseTest", "질문 저장 실패", e);
 
-                                    Toast.makeText(QuestionActivity.this,
-                                            "질문 등록에 실패했습니다.",
-                                            Toast.LENGTH_SHORT).show();
                                 });
                     });
                 })

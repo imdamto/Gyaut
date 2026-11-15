@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:layout_marginBottom="12dp"
+    android:background="#F1F1F1">
+
+    <!-- 수업 정보 -->
+    <TextView
+        android:id="@+id/textTopic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="10주차 · RecyclerView"
+        android:textSize="14sp"
+        android:textColor="#666666" />
+
+    <!-- 질문 내용 -->
+    <TextView
+        android:id="@+id/textContent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="질문 내용"
+        android:textSize="18sp"
+        android:textColor="#222222"
+        android:textStyle="bold"
+        android:layout_marginTop="8dp" />
+
+    <!-- 좋아요 수 -->
+    <TextView
+        android:id="@+id/textLikeCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="좋아요 0개"
+        android:textSize="14sp"
+        android:textColor="#666666"
+        android:layout_marginTop="8dp" />
+
+    <!-- 질문 상태 -->
+    <TextView
+        android:id="@+id/textStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="공개"
+        android:textSize="14sp"
+        android:textColor="#666666"
+        android:layout_marginTop="4dp" />
+
+    <!-- 관리 버튼 영역 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:layout_marginTop="8dp">
+
+        <Button
+            android:id="@+id/buttonHide"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="숨김" />
+
+        <Button
+            android:id="@+id/buttonWarning"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="경고" />
+
+        <Button
+            android:id="@+id/buttonDelete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="삭제" />
+
+    </LinearLayout>
+
+</LinearLayout>
