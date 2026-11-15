@@ -1,16 +1,18 @@
 package com.gyaut.app.realtime;
 
 import android.content.Intent;
+import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 import android.os.CountDownTimer;
+import android.os.Handler;
+import android.os.Looper;
+
 import com.gyaut.app.R;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.gyaut.app.common.FirestorePaths;
-
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.gyaut.app.common.IntentKeys;
 import com.gyaut.app.common.WindowInsetsHelper;
@@ -19,16 +21,24 @@ import com.gyaut.app.question.QuestionActivity;
 import com.gyaut.app.question.QuestionListActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ArrayList;
 
 public class ClassActivity extends AppCompatActivity {
 
     private ActivityClassBinding binding;
     private FirebaseFirestore db;
     private CountDownTimer timer;
+    private ListenerRegistration confusionListener;
+    // 학생들이 누른 시간 모아두기 (다시 셀 때 씀)
+    private List<Long> pressedTimes = new ArrayList<>();
+    private Handler handler = new Handler(Looper.getMainLooper());
 
     // 일단 테스트 데이터로. 과목 화면에서 넘겨주면 그걸로 바뀜
     private String courseId = "test-course";
@@ -162,6 +172,68 @@ public class ClassActivity extends AppCompatActivity {
         };
         timer.start();
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        listenConfusion();
+        handler.post(recount);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // 화면 안 보일 땐 그만 듣기
+        if (confusionListener != null) {
+            confusionListener.remove();
+            confusionListener = null;
+        }
+        handler.removeCallbacks(recount);
+    }
+
+    // confusion 컬렉션 실시간으로 받기
+    private void listenConfusion() {
+        confusionListener = db.collection(FirestorePaths.COURSES).document(courseId)
+                .collection(FirestorePaths.SESSIONS).document(sessionId)
+                .collection(FirestorePaths.CONFUSION)
+                .addSnapshotListener((value, error) -> {
+                    if (error != null || value == null) {
+                        return;
+                    }
+
+                    // 누른 시간만 다 꺼내서 저장
+                    pressedTimes.clear();
+                    for (DocumentSnapshot doc : value.getDocuments()) {
+                        Timestamp pressedAt = doc.getTimestamp("pressedAt",
+                                DocumentSnapshot.ServerTimestampBehavior.ESTIMATE);
+                        if (pressedAt != null) {
+                            pressedTimes.add(pressedAt.toDate().getTime());
+                        }
+                    }
+                    updateCount();
+                });
+    }
+
+    // 3분 안에 누른 사람만 세기
+    private void updateCount() {
+        long now = System.currentTimeMillis();
+        int count = 0;
+        for (long time : pressedTimes) {
+            if (now - time < FirestorePaths.CONFUSION_WINDOW_MS) {
+                count++;
+            }
+        }
+        binding.tvGyautCount.setText(count + "명");
+    }
+
+    // 3분 지난 사람 빠지게 1초마다 다시 세기
+    private final Runnable recount = new Runnable() {
+        @Override
+        public void run() {
+            updateCount();
+            handler.postDelayed(this, 1000); // 1초마다 갱신
+        }
+    };
 
     @Override
     protected void onDestroy() {
