@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
-import java.util.List;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.gyaut.app.common.FirestorePaths;
 
@@ -16,6 +15,12 @@ import com.gyaut.app.common.WindowInsetsHelper;
 import com.gyaut.app.databinding.ActivityClassBinding;
 import com.gyaut.app.question.QuestionActivity;
 import com.gyaut.app.question.QuestionListActivity;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FieldValue;
+
+import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ClassActivity extends AppCompatActivity {
 
@@ -58,6 +63,9 @@ public class ClassActivity extends AppCompatActivity {
             intent.putExtra(IntentKeys.SESSION_ID, sessionId);
             startActivity(intent);
         });
+
+        // 갸웃 원 누르면 저장
+        binding.cardGyaut.setOnClickListener(v -> pressGyaut());
     }
 
     // 과목명, 시간표, 주차, 주제 불러오기
@@ -91,5 +99,27 @@ public class ClassActivity extends AppCompatActivity {
                         binding.topicBox.setVisibility(View.VISIBLE);
                     }
                 });
+    }
+
+    // 갸웃 눌렀을 때 -> confusion/내uid 에 누른 시간 저장
+    private void pressGyaut() {
+        String uid = FirebaseAuth.getInstance().getUid();
+        if (uid == null) {
+            Toast.makeText(this, "로그인이 필요해요", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("pressedAt", FieldValue.serverTimestamp());
+
+        // 문서 이름이 내 uid라서 다시 누르면 새로 안 생기고 덮어써짐 (1인 1표)
+        db.collection(FirestorePaths.COURSES).document(courseId)
+                .collection(FirestorePaths.SESSIONS).document(sessionId)
+                .collection(FirestorePaths.CONFUSION).document(uid)
+                .set(data)
+                .addOnSuccessListener(unused ->
+                        Toast.makeText(this, "갸웃 전달됨", Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "전달 실패: " + e.getMessage(), Toast.LENGTH_LONG).show());
     }
 }
