@@ -5,7 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Button;
-
+import com.google.firebase.auth.FirebaseAuth;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -31,6 +31,8 @@ public class QuestionAdapter extends
     public interface OnQuestionClickListener {
         void onDeleteClick(Question question);
         void onHideClick(Question question);
+        default void onLikeClick(Question question) {
+        }
     }
 
     private OnQuestionClickListener listener;
@@ -59,7 +61,7 @@ public class QuestionAdapter extends
                 question.week + "주차 · " + question.topic);
 
         holder.textLikeCount.setText(
-                "좋아요 " + question.likeCount + "개");
+                "공감 " + question.likeCount + "개");
 
         if ("visible".equals(question.status)) {
             holder.textStatus.setText("공개");
@@ -92,14 +94,35 @@ public class QuestionAdapter extends
 
         } else {
 
-            holder.buttonHide.setText("좋아요");
-            holder.buttonWarning.setText("버튼 2");
-            holder.buttonDelete.setText("버튼 3");
+        String uid = FirebaseAuth.getInstance()
+                .getUid();
 
-            holder.buttonHide.setOnClickListener(null);
-            holder.buttonWarning.setOnClickListener(null);
-            holder.buttonDelete.setOnClickListener(null);
+        // 현재 학생이 이미 공감했는지 확인
+        boolean isLiked =
+                uid != null &&
+                        question.likedUsers != null &&
+                        question.likedUsers.contains(uid);
+
+        // 공감 여부에 따라 버튼 이름 변경
+        if (isLiked) {
+            holder.buttonHide.setText("공감 취소");
+        } else {
+            holder.buttonHide.setText("공감");
         }
+
+        holder.buttonWarning.setText("버튼 2");
+        holder.buttonDelete.setText("버튼 3");
+
+        // 공감 버튼 클릭
+        holder.buttonHide.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onLikeClick(question);
+            }
+        });
+
+        holder.buttonWarning.setOnClickListener(null);
+        holder.buttonDelete.setOnClickListener(null);
+    }
     }
 
     // 전체 질문 개수 반환

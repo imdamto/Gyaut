@@ -1,7 +1,7 @@
 package com.gyaut.app.question;
 
 import com.google.firebase.Timestamp;
-
+import java.util.List;
 public class Question {
 
     public String id;
@@ -13,7 +13,7 @@ public class Question {
     public String status;
     public String topic;
     public long week;
-
+    public List<String> likedUsers;
     public Question() {
     }
 }

@@ -5,9 +5,9 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
+import java.util.List;
 import androidx.appcompat.app.AppCompatActivity;
-
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -24,12 +24,9 @@ import java.util.ArrayList;
 public class QuestionActivity extends AppCompatActivity {
     FirebaseFirestore db;
     RecyclerView recyclerQuestions;
-
     String courseId = "test-course";
     ArrayList<Question> questionList;
-
     QuestionAdapter adapter;
-
     ListenerRegistration listener;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,17 +118,30 @@ public class QuestionActivity extends AppCompatActivity {
                 new LinearLayoutManager(this));
 
         questionList = new ArrayList<>();
-
         adapter = new QuestionAdapter(
                 questionList,
-                null,
+                new QuestionAdapter.OnQuestionClickListener() {
+
+                    @Override
+                    public void onDeleteClick(Question question) {
+                        // 학생용에서는 사용하지 않음
+                    }
+
+                    @Override
+                    public void onHideClick(Question question) {
+                        // 학생용에서는 사용하지 않음
+                    }
+
+                    @Override
+                    public void onLikeClick(Question question) {
+                        toggleLike(question);
+                    }
+                },
                 false
         );
-
         recyclerQuestions.setAdapter(adapter);
 
         loadQuestions();
-
     }
     private void loadQuestions() {
 
@@ -169,6 +179,84 @@ public class QuestionActivity extends AppCompatActivity {
 
                     adapter.notifyDataSetChanged();
                 });
+    }
+    private void toggleLike(Question question) {
+
+        String uid = FirebaseAuth.getInstance().getUid();
+
+        if (uid == null) {
+            Toast.makeText(this,
+                    "로그인이 필요합니다.",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 공감할 질문의 Firebase 문서
+        DocumentReference questionRef = db
+                .collection("courses")
+                .document(courseId)
+                .collection("questions")
+                .document(question.id);
+
+        db.runTransaction(transaction -> {
+
+            // 현재 Firebase에 저장된 질문 조회
+            DocumentSnapshot snapshot =
+                    transaction.get(questionRef);
+
+            // 공감한 사용자 목록
+            List<?> likedUsers =
+                    (List<?>) snapshot.get("likedUsers");
+
+            // 현재 공감 수
+            Long count = snapshot.getLong("likeCount");
+
+            long likeCount = count != null ? count : 0;
+
+            // 이미 공감했는지 확인
+            boolean isLiked =
+                    likedUsers != null &&
+                            likedUsers.contains(uid);
+
+            if (isLiked) {
+
+                // 공감 취소
+                transaction.update(questionRef,
+                        "likedUsers",
+                        FieldValue.arrayRemove(uid));
+
+                transaction.update(questionRef,
+                        "likeCount",
+                        Math.max(0, likeCount - 1));
+
+            } else {
+
+                // 공감 추가
+                transaction.update(questionRef,
+                        "likedUsers",
+                        FieldValue.arrayUnion(uid));
+
+                transaction.update(questionRef,
+                        "likeCount",
+                        likeCount + 1);
+            }
+
+            return null;
+
+        }).addOnSuccessListener(unused -> {
+
+            Toast.makeText(this,
+                    "공감 상태가 변경되었습니다.",
+                    Toast.LENGTH_SHORT).show();
+
+        }).addOnFailureListener(e -> {
+
+            Toast.makeText(this,
+                    "공감 처리 실패",
+                    Toast.LENGTH_SHORT).show();
+
+            Log.e("FirebaseTest", "공감 처리 실패", e);
+        });
     }
     @Override
     protected void onDestroy() {
