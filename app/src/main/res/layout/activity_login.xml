@@ -86,6 +86,14 @@
             android:layout_marginTop="24dp"
             android:text="로그인" />
 
+        <Button
+            android:id="@+id/btnGoogle"
+            style="@style/Widget.Gyaut.Button.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Google로 계속" />
+
         <!-- 회원가입으로 이동 -->
         <LinearLayout
             android:layout_width="wrap_content"
