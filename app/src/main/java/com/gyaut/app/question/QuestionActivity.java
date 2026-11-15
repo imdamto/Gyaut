@@ -12,12 +12,25 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.gyaut.app.R;
-
 import java.util.HashMap;
 import java.util.Map;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.ListenerRegistration;
+
+import java.util.ArrayList;
 public class QuestionActivity extends AppCompatActivity {
+    FirebaseFirestore db;
+    RecyclerView recyclerQuestions;
 
+    String courseId = "test-course";
+    ArrayList<Question> questionList;
+
+    QuestionAdapter adapter;
+
+    ListenerRegistration listener;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,7 +44,7 @@ public class QuestionActivity extends AppCompatActivity {
 
         // 2. Firebase 객체 생성
         FirebaseAuth auth = FirebaseAuth.getInstance();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db = FirebaseFirestore.getInstance();
 
         // 로그인 전에는 버튼 비활성화
         btnSubmit.setEnabled(false);
@@ -73,9 +86,7 @@ public class QuestionActivity extends AppCompatActivity {
                         question.put("status", "visible");
                         question.put("topic", "RecyclerView");
                         question.put("week", 10);
-
 // Firebase에 질문 저장
-                        String courseId = "test-course";
                         db.collection("courses")
                                 .document(courseId)
                                 .collection("questions")
@@ -104,5 +115,67 @@ public class QuestionActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     Log.e("FirebaseTest", "로그인 실패", e);
                 });
+        recyclerQuestions = findViewById(R.id.recyclerQuestions);
+
+        recyclerQuestions.setLayoutManager(
+                new LinearLayoutManager(this));
+
+        questionList = new ArrayList<>();
+
+        adapter = new QuestionAdapter(
+                questionList,
+                null,
+                false
+        );
+
+        recyclerQuestions.setAdapter(adapter);
+
+        loadQuestions();
+
+    }
+    private void loadQuestions() {
+
+        listener = db.collection("courses")
+                .document(courseId)
+                .collection("questions")
+                .whereEqualTo("status", "visible")
+                .addSnapshotListener((value, error) -> {
+
+                    if (error != null) {
+                        Log.e("FirebaseTest",
+                                "질문 조회 실패", error);
+                        return;
+                    }
+
+                    if (value == null) {
+                        return;
+                    }
+
+                    questionList.clear();
+
+                    for (DocumentSnapshot document
+                            : value.getDocuments()) {
+
+                        Question question =
+                                document.toObject(Question.class);
+
+                        if (question != null) {
+
+                            question.id = document.getId();
+
+                            questionList.add(question);
+                        }
+                    }
+
+                    adapter.notifyDataSetChanged();
+                });
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (listener != null) {
+            listener.remove();
+        }
     }
 }

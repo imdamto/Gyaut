@@ -3,7 +3,7 @@ import com.gyaut.app.R;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
-
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -46,8 +46,22 @@ public class QuestionListActivity extends AppCompatActivity {
         questionList = new ArrayList<>();
 
         // 4. Adapter 연결
-        adapter = new QuestionAdapter(questionList);
+        adapter = new QuestionAdapter(
+                questionList,
+                new QuestionAdapter.OnQuestionClickListener() {
 
+                    @Override
+                    public void onDeleteClick(Question question) {
+                        showDeleteDialog(question);
+                    }
+
+                    @Override
+                    public void onHideClick(Question question) {
+                        toggleQuestionStatus(question);
+                    }
+                },
+                true
+        );
         recyclerQuestions.setAdapter(adapter);
 
         // 5. Firebase 질문 불러오기
@@ -99,7 +113,90 @@ public class QuestionListActivity extends AppCompatActivity {
                     adapter.notifyDataSetChanged();
                 });
     }
+    private void showDeleteDialog(Question question) {
 
+        new AlertDialog.Builder(this)
+                .setTitle("질문 삭제")
+                .setMessage("해당 질문을 삭제하시겠습니까?\n\n"
+                        + question.content)
+
+                .setNegativeButton("취소", (dialog, which) -> {
+                    dialog.dismiss();
+                })
+
+                .setPositiveButton("삭제", (dialog, which) -> {
+                    deleteQuestion(question.id);
+                })
+
+                .show();
+    }
+    private void deleteQuestion(String questionId) {
+
+        db.collection("courses")
+                .document(courseId)
+                .collection("questions")
+                .document(questionId)
+                .delete()
+
+                .addOnSuccessListener(unused -> {
+
+                    Toast.makeText(this,
+                            "질문이 삭제되었습니다.",
+                            Toast.LENGTH_SHORT).show();
+                })
+
+                .addOnFailureListener(e -> {
+
+                    Toast.makeText(this,
+                            "질문 삭제 실패",
+                            Toast.LENGTH_SHORT).show();
+
+                    Log.e("FirebaseTest", "삭제 실패", e);
+                });
+    }
+    private void toggleQuestionStatus(Question question) {
+
+        String newStatus;
+
+        // 현재 공개 상태라면 숨김으로 변경
+        if ("visible".equals(question.status)) {
+            newStatus = "hidden";
+        } else {
+            newStatus = "visible";
+        }
+
+        db.collection("courses")
+                .document(courseId)
+                .collection("questions")
+                .document(question.id)
+
+                .update("status", newStatus)
+
+                .addOnSuccessListener(unused -> {
+
+                    if ("hidden".equals(newStatus)) {
+
+                        Toast.makeText(this,
+                                "질문이 숨김 처리되었습니다.",
+                                Toast.LENGTH_SHORT).show();
+
+                    } else {
+
+                        Toast.makeText(this,
+                                "질문이 다시 공개되었습니다.",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                })
+
+                .addOnFailureListener(e -> {
+
+                    Toast.makeText(this,
+                            "상태 변경 실패",
+                            Toast.LENGTH_SHORT).show();
+
+                    Log.e("FirebaseTest", "상태 변경 실패", e);
+                });
+    }
     @Override
     protected void onDestroy() {
         super.onDestroy();

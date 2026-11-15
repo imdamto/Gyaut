@@ -18,12 +18,22 @@ public class QuestionAdapter extends
 
     // 질문 데이터 목록
     private List<Question> questionList;
+    private boolean isProfessor;
+    public QuestionAdapter(
+            List<Question> questionList,
+            OnQuestionClickListener listener,
+            boolean isProfessor) {
 
-    // 생성자
-    public QuestionAdapter(List<Question> questionList) {
         this.questionList = questionList;
+        this.listener = listener;
+        this.isProfessor = isProfessor;
+    }
+    public interface OnQuestionClickListener {
+        void onDeleteClick(Question question);
+        void onHideClick(Question question);
     }
 
+    private OnQuestionClickListener listener;
     // 질문 하나의 화면 생성
     @NonNull
     @Override
@@ -55,6 +65,40 @@ public class QuestionAdapter extends
             holder.textStatus.setText("공개");
         } else {
             holder.textStatus.setText("숨김");
+        }
+
+        // 삭제 버튼 클릭
+        if (isProfessor) {
+
+            // 질문 상태에 따라 버튼 이름 변경
+            if ("visible".equals(question.status)) {
+                holder.buttonHide.setText("숨김");
+            } else {
+                holder.buttonHide.setText("공개");
+            }
+
+            holder.buttonWarning.setText("경고");
+            holder.buttonDelete.setText("삭제");
+
+            // 숨김 / 공개 버튼
+            holder.buttonHide.setOnClickListener(v -> {
+                listener.onHideClick(question);
+            });
+
+            // 기존 삭제 버튼
+            holder.buttonDelete.setOnClickListener(v -> {
+                listener.onDeleteClick(question);
+            });
+
+        } else {
+
+            holder.buttonHide.setText("좋아요");
+            holder.buttonWarning.setText("버튼 2");
+            holder.buttonDelete.setText("버튼 3");
+
+            holder.buttonHide.setOnClickListener(null);
+            holder.buttonWarning.setOnClickListener(null);
+            holder.buttonDelete.setOnClickListener(null);
         }
     }
 
