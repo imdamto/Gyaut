@@ -6,19 +6,23 @@
     <style name="Widget.Gyaut.Button" parent="Widget.Material3.Button">
         <item name="backgroundTint">@color/primary</item>
         <item name="android:textColor">@color/onPrimary</item>
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">18sp</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:minHeight">56dp</item>
-        <item name="cornerRadius">12dp</item>
+        <item name="android:minHeight">64dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="cornerRadius">16dp</item>
     </style>
 
     <!-- 테두리만 있는 보조 버튼 -->
     <style name="Widget.Gyaut.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
         <item name="android:textColor">@color/text</item>
         <item name="strokeColor">@color/line</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:minHeight">56dp</item>
-        <item name="cornerRadius">12dp</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:minHeight">64dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="cornerRadius">16dp</item>
     </style>
 
     <!-- 둘 중 하나 고르는 선택 버튼 (학생/교수, 요일) -->
@@ -26,9 +30,11 @@
         <item name="backgroundTint">@color/toggle_bg</item>
         <item name="android:textColor">@color/toggle_text</item>
         <item name="strokeColor">@color/line</item>
-        <item name="android:textSize">15sp</item>
+        <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:minHeight">48dp</item>
+        <item name="android:minHeight">52dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
         <item name="cornerRadius">12dp</item>
     </style>
 
