@@ -1,10 +1,320 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/bg"
+    android:fillViewport="true"
     tools:context=".course.CreateCourseActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="과목 개설"
+            android:textColor="@color/text"
+            android:textSize="26sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="과목을 만들면 학생에게 알려 줄 참여 코드가 생겨요"
+            android:textColor="@color/text2"
+            android:textSize="14sp" />
+
+        <!-- 과목명 + 분반 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/inputCourseName"
+                style="@style/Widget.Gyaut.TextInput"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="과목명">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editCourseName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:maxLength="30"
+                    android:textColor="@color/text" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/inputSection"
+                style="@style/Widget.Gyaut.TextInput"
+                android:layout_width="96dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:hint="분반">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editSection"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:maxLength="2"
+                    android:textColor="@color/text" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+        <!-- 학기 -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/inputSemester"
+            style="@style/Widget.Gyaut.TextInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:hint="학기">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editSemester"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:maxLength="20"
+                android:textColor="@color/text" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="수업 요일"
+            android:textColor="@color/text2"
+            android:textSize="13sp" />
+
+        <!-- 요일 선택: 여러 개 가능, 최소 하나 -->
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/toggleDay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:checkedButton="@+id/btnDayMon"
+            app:selectionRequired="true">
+
+            <Button
+                android:id="@+id/btnDayMon"
+                style="@style/Widget.Gyaut.Button.Toggle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:minWidth="0dp"
+                android:paddingStart="0dp"
+                android:paddingEnd="0dp"
+                android:text="월" />
+
+            <Button
+                android:id="@+id/btnDayTue"
+                style="@style/Widget.Gyaut.Button.Toggle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:minWidth="0dp"
+                android:paddingStart="0dp"
+                android:paddingEnd="0dp"
+                android:text="화" />
+
+            <Button
+                android:id="@+id/btnDayWed"
+                style="@style/Widget.Gyaut.Button.Toggle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:minWidth="0dp"
+                android:paddingStart="0dp"
+                android:paddingEnd="0dp"
+                android:text="수" />
+
+            <Button
+                android:id="@+id/btnDayThu"
+                style="@style/Widget.Gyaut.Button.Toggle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:minWidth="0dp"
+                android:paddingStart="0dp"
+                android:paddingEnd="0dp"
+                android:text="목" />
+
+            <Button
+                android:id="@+id/btnDayFri"
+                style="@style/Widget.Gyaut.Button.Toggle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:minWidth="0dp"
+                android:paddingStart="0dp"
+                android:paddingEnd="0dp"
+                android:text="금" />
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="요일별 시작 시간"
+            android:textColor="@color/text2"
+            android:textSize="13sp" />
+
+        <!-- 요일마다 한 줄. 고른 요일의 줄만 보이게 함 -->
+        <LinearLayout
+            android:id="@+id/rowMon"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="72dp"
+                android:layout_height="wrap_content"
+                android:text="월요일"
+                android:textColor="@color/text"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/btnTimeMon"
+                style="@style/Widget.Gyaut.Button.Outlined"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:minHeight="52dp"
+                android:text="09:00"
+                app:backgroundTint="@color/surface2" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/rowTue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="72dp"
+                android:layout_height="wrap_content"
+                android:text="화요일"
+                android:textColor="@color/text"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/btnTimeTue"
+                style="@style/Widget.Gyaut.Button.Outlined"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:minHeight="52dp"
+                android:text="09:00"
+                app:backgroundTint="@color/surface2" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/rowWed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="72dp"
+                android:layout_height="wrap_content"
+                android:text="수요일"
+                android:textColor="@color/text"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/btnTimeWed"
+                style="@style/Widget.Gyaut.Button.Outlined"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:minHeight="52dp"
+                android:text="09:00"
+                app:backgroundTint="@color/surface2" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/rowThu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="72dp"
+                android:layout_height="wrap_content"
+                android:text="목요일"
+                android:textColor="@color/text"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/btnTimeThu"
+                style="@style/Widget.Gyaut.Button.Outlined"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:minHeight="52dp"
+                android:text="09:00"
+                app:backgroundTint="@color/surface2" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/rowFri"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="72dp"
+                android:layout_height="wrap_content"
+                android:text="금요일"
+                android:textColor="@color/text"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/btnTimeFri"
+                style="@style/Widget.Gyaut.Button.Outlined"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:minHeight="52dp"
+                android:text="09:00"
+                app:backgroundTint="@color/surface2" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnCreate"
+            style="@style/Widget.Gyaut.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="개설하기" />
+
+    </LinearLayout>
+</ScrollView>
