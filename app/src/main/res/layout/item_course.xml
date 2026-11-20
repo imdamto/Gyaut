@@ -21,7 +21,7 @@
             android:textColor="@color/text"
             android:textSize="18sp"
             android:textStyle="bold"
-            tools:text="사용자인터페이스" />
+            tools:text="사용자인터페이스 (01분반)" />
 
         <TextView
             android:id="@+id/tvCourseInfo"
@@ -30,7 +30,20 @@
             android:layout_marginTop="4dp"
             android:textColor="@color/text2"
             android:textSize="14sp"
-            tools:text="월 13:00 · 48명" />
+            tools:text="월 09:00, 수 10:30 · 48명" />
+
+        <!-- 교수에게만 보이는 참여 코드 -->
+        <TextView
+            android:id="@+id/tvJoinCode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="monospace"
+            android:textColor="@color/primary"
+            android:textSize="14sp"
+            android:visibility="gone"
+            tools:text="참여 코드  K7Q2MX"
+            tools:visibility="visible" />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
