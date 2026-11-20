@@ -46,14 +46,31 @@
             </LinearLayout>
 
             <!-- 교수님이 수업하면서 볼 수 있게 시계 크게 -->
-            <TextView
-                android:id="@+id/tvClock"
+            <!-- 현재시각 + 시계 두줄. 라벨 폭을 숫자 폭이랑 비슷하게 -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="00:00"
-                android:textColor="@color/text"
-                android:textSize="32sp"
-                android:textStyle="bold" />
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:letterSpacing="0.35"
+                    android:text="현재시각"
+                    android:textColor="@color/text2"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/tvClock"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:includeFontPadding="false"
+                    android:text="00:00"
+                    android:textColor="@color/text"
+                    android:textSize="28sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
         </LinearLayout>
 
         <!-- 구분선 -->

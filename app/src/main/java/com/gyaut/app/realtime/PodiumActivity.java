@@ -7,6 +7,8 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;   // ← 추가
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.gyaut.app.common.FirestorePaths;
@@ -33,6 +35,9 @@ public class PodiumActivity extends AppCompatActivity {
     private List<Long> pressedTimes = new ArrayList<>();
     // 이 과목 전체 학생 수 (비율 계산용)
     private long studentCount = 0;
+    // 교탁모드 질문 목록
+    private List<PodiumQuestion> questionList = new ArrayList<>();
+    private PodiumQuestionAdapter adapter;
 
     // 일단 테스트 데이터로. 과목 화면에서 넘겨주면 그걸로 바뀜
     private String courseId = "test-course";
@@ -55,6 +60,13 @@ public class PodiumActivity extends AppCompatActivity {
         }
 
         loadClassInfo();
+
+        // 질문 목록 준비
+        adapter = new PodiumQuestionAdapter(questionList);
+        binding.rvQuestions.setLayoutManager(new LinearLayoutManager(this));
+        binding.rvQuestions.setAdapter(adapter);
+
+        addTestQuestions(); // 화면 확인용. 다음 단계에서 지움
     }
 
     // 과목명, 주차 불러오기
@@ -77,6 +89,33 @@ public class PodiumActivity extends AppCompatActivity {
                     Long week = session.getLong("week");
                     binding.tvLiveWeek.setText("LIVE · " + week + "주차");
                 });
+    }
+
+    // 카드 잘 나오는지 보려고 가짜 질문 넣기 (다음 단계에서 지움)
+    private void addTestQuestions() {
+        long now = System.currentTimeMillis();
+
+        PodiumQuestion q1 = new PodiumQuestion();
+        q1.content = "사용자 인터뷰에서 답변을 유도하지 않으려면 질문을 어떻게 구성해야 하나요?";
+        q1.createdAt = now - 3 * 60000;
+        q1.likeCount = 18;
+        questionList.add(q1);
+
+        PodiumQuestion q2 = new PodiumQuestion();
+        q2.content = "페르소나는 실제 인터뷰 결과만으로 만들어야 하나요?";
+        q2.createdAt = now - 18 * 60000;
+        q2.likeCount = 12;
+        questionList.add(q2);
+
+        PodiumQuestion q3 = new PodiumQuestion();
+        q3.content = "정성조사와 정량조사 중 무엇을 먼저 해야 할까요?";
+        q3.createdAt = now - 29 * 60000;
+        q3.likeCount = 9;
+        q3.answered = true;
+        questionList.add(q3);
+
+        binding.tvQuestionCount.setText(questionList.size() + "개");
+        adapter.notifyDataSetChanged();
     }
 
     // confusion 컬렉션 실시간으로 받기

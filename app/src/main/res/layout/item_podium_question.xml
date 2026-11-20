@@ -28,7 +28,7 @@
             android:textColor="@color/text"
             android:textSize="16sp" />
 
-        <!-- 아래줄: 왼쪽 몇분전·궁금해요, 오른쪽 답변완료 -->
+        <!-- 아래줄: 왼쪽 몇분전·궁금해요, 오른쪽 답변완료 + 더보기 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -40,19 +40,34 @@
                 android:id="@+id/tvTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:includeFontPadding="false"
                 android:text="0분 전"
                 android:textColor="@color/text2"
+                android:layout_marginBottom="2dp"
                 android:textSize="13sp" />
+
+            <!-- 몇분전 | 궁금해요 사이 세로선 -->
+            <View
+                android:layout_width="1dp"
+                android:layout_height="12dp"
+                android:layout_gravity="bottom"
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="4dp"
+                android:background="@color/text2" />
 
             <TextView
                 android:id="@+id/tvLikes"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:layout_gravity="bottom"
                 android:layout_marginStart="8dp"
+                android:includeFontPadding="false"
                 android:text="궁금해요 0"
                 android:textColor="@color/primary"
                 android:textSize="13sp"
+                android:layout_marginBottom="2dp"
                 android:textStyle="bold" />
 
             <com.google.android.material.button.MaterialButton
@@ -70,6 +85,27 @@
                 android:textColor="@color/text"
                 android:textSize="13sp"
                 app:cornerRadius="50dp"
+                app:strokeColor="@color/line" />
+
+            <!-- 더보기 (경고 후 삭제, 바로 삭제) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnMore"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="8dp"
+                android:contentDescription="더보기"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:padding="0dp"
+                app:cornerRadius="50dp"
+                app:icon="@drawable/ic_more_vert"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:iconSize="18dp"
+                app:iconTint="@color/text2"
                 app:strokeColor="@color/line" />
         </LinearLayout>
     </LinearLayout>
