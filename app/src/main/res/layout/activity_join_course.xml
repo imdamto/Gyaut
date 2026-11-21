@@ -1,10 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/bg"
+    android:fillViewport="true"
     tools:context=".course.JoinCourseActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="과목 등록"
+            android:textColor="@color/text"
+            android:textSize="26sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="교수님께 받은 참여 코드 6자리를 입력해 주세요"
+            android:textColor="@color/text2"
+            android:textSize="14sp" />
+
+        <!-- 참여 코드 -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/inputCode"
+            style="@style/Widget.Gyaut.TextInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:hint="참여 코드">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editCode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+                android:inputType="textCapCharacters|textNoSuggestions"
+                android:letterSpacing="0.3"
+                android:maxLength="6"
+                android:textColor="@color/text"
+                android:textSize="22sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/btnFind"
+            style="@style/Widget.Gyaut.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="과목 찾기" />
+
+        <!-- 코드로 찾은 과목. 찾기 전에는 숨김 -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardFound"
+            style="@style/Widget.Gyaut.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <LinearLayout
+                android:id="@+id/layoutFound"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvFoundName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    tools:text="사용자인터페이스 (01분반)" />
+
+                <TextView
+                    android:id="@+id/tvFoundInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textColor="@color/text2"
+                    android:textSize="14sp"
+                    tools:text="월 09:00, 수 10:30 · 48명" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+</ScrollView>
