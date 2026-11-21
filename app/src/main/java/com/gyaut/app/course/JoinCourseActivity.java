@@ -1,26 +1,92 @@
 package com.gyaut.app.course;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
-import com.gyaut.app.R;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.gyaut.app.common.FirestorePaths;
+import com.gyaut.app.common.WindowInsetsHelper;
+import com.gyaut.app.databinding.ActivityJoinCourseBinding;
 
+import java.util.Locale;
+
+// 학생: 교수님께 받은 참여 코드로 과목을 찾아 등록하는 화면
 public class JoinCourseActivity extends AppCompatActivity {
+
+    private static final int CODE_LENGTH = 6;
+
+    private ActivityJoinCourseBinding binding;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_join_course);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        binding = ActivityJoinCourseBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        WindowInsetsHelper.applyTo(binding.getRoot());
+
+        db = FirebaseFirestore.getInstance();
+
+        binding.btnFind.setOnClickListener(v -> findCourse());
+    }
+
+    // joinCode가 입력한 코드와 같은 과목 찾기
+    private void findCourse() {
+        // 붙여 넣기 등으로 소문자가 들어와도 찾을 수 있게 대문자로 바꿈
+        String code = textOf(binding.editCode).trim().toUpperCase(Locale.ROOT);
+
+        binding.inputCode.setError(null);
+        showFound(null);
+
+        if (code.length() != CODE_LENGTH) {
+            binding.inputCode.setError("코드 6자리를 입력해 주세요");
+            return;
+        }
+
+        setFinding(true);
+        db.collection(FirestorePaths.COURSES)
+                .whereEqualTo("joinCode", code)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    setFinding(false);
+                    if (snapshot.isEmpty()) {
+                        binding.inputCode.setError("이 코드의 과목이 없어요. 코드를 다시 확인해 주세요");
+                        return;
+                    }
+                    showFound(Course.from(snapshot.getDocuments().get(0)));
+                })
+                .addOnFailureListener(e -> {
+                    setFinding(false);
+                    Toast.makeText(this, "과목을 찾지 못했어요. 다시 시도해 주세요", Toast.LENGTH_LONG).show();
+                });
+    }
+
+    // 찾은 과목을 카드로 보여 줌. null이면 카드를 숨김
+    private void showFound(Course course) {
+        if (course == null) {
+            binding.cardFound.setVisibility(View.GONE);
+            return;
+        }
+        binding.tvFoundName.setText(course.titleText());
+        binding.tvFoundInfo.setText(course.infoText());
+        binding.cardFound.setVisibility(View.VISIBLE);
+    }
+
+    private void setFinding(boolean finding) {
+        binding.btnFind.setEnabled(!finding);
+        binding.btnFind.setText(finding ? "찾는 중..." : "과목 찾기");
+    }
+
+    private String textOf(EditText editText) {
+        Editable text = editText.getText();
+        return text == null ? "" : text.toString();
     }
 }
