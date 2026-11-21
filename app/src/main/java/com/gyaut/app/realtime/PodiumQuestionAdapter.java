@@ -53,12 +53,22 @@ public class PodiumQuestionAdapter extends RecyclerView.Adapter<PodiumQuestionAd
             binding.tvContent.setText(question.content);
             binding.tvLikes.setText("궁금해요 " + question.likeCount);
 
-            // 몇분 전에 올라왔는지
+            // 언제 올라왔는지 (1시간 넘으면 시간, 하루 넘으면 일로)
             long minutes = (System.currentTimeMillis() - question.createdAt) / 60000;
             if (minutes < 1) {
                 binding.tvTime.setText("방금");
-            } else {
+            } else if (minutes < 60) {
                 binding.tvTime.setText(minutes + "분 전");
+            } else if (minutes < 60 * 24) {
+                long hours = minutes / 60;
+                long rest = minutes % 60;
+                if (rest == 0) {
+                    binding.tvTime.setText(hours + "시간 전");
+                } else {
+                    binding.tvTime.setText(hours + "시간 " + rest + "분 전");
+                }
+            } else {
+                binding.tvTime.setText(minutes / (60 * 24) + "일 전");
             }
 
             // 답변한 질문은 흐리게 + 답변완료 버튼만 숨기기 (더보기는 그대로)
