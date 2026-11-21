@@ -38,6 +38,9 @@ public class PodiumActivity extends AppCompatActivity {
     // 교탁모드 질문 목록
     private List<PodiumQuestion> questionList = new ArrayList<>();
     private PodiumQuestionAdapter adapter;
+    private ListenerRegistration questionListener;
+    // 시계가 바뀌었는지 확인용 (분 바뀌면 "몇분 전" 다시 계산)
+    private String lastClock = "";
 
     // 일단 테스트 데이터로. 과목 화면에서 넘겨주면 그걸로 바뀜
     private String courseId = "test-course";
@@ -66,7 +69,6 @@ public class PodiumActivity extends AppCompatActivity {
         binding.rvQuestions.setLayoutManager(new LinearLayoutManager(this));
         binding.rvQuestions.setAdapter(adapter);
 
-        addTestQuestions(); // 화면 확인용. 다음 단계에서 지움
     }
 
     // 과목명, 주차 불러오기
@@ -91,33 +93,6 @@ public class PodiumActivity extends AppCompatActivity {
                 });
     }
 
-    // 카드 잘 나오는지 보려고 가짜 질문 넣기 (다음 단계에서 지움)
-    private void addTestQuestions() {
-        long now = System.currentTimeMillis();
-
-        PodiumQuestion q1 = new PodiumQuestion();
-        q1.content = "사용자 인터뷰에서 답변을 유도하지 않으려면 질문을 어떻게 구성해야 하나요?";
-        q1.createdAt = now - 3 * 60000;
-        q1.likeCount = 18;
-        questionList.add(q1);
-
-        PodiumQuestion q2 = new PodiumQuestion();
-        q2.content = "페르소나는 실제 인터뷰 결과만으로 만들어야 하나요?";
-        q2.createdAt = now - 18 * 60000;
-        q2.likeCount = 12;
-        questionList.add(q2);
-
-        PodiumQuestion q3 = new PodiumQuestion();
-        q3.content = "정성조사와 정량조사 중 무엇을 먼저 해야 할까요?";
-        q3.createdAt = now - 29 * 60000;
-        q3.likeCount = 9;
-        q3.answered = true;
-        questionList.add(q3);
-
-        binding.tvQuestionCount.setText(questionList.size() + "개");
-        adapter.notifyDataSetChanged();
-    }
-
     // confusion 컬렉션 실시간으로 받기
     private void listenConfusion() {
         confusionListener = db.collection(FirestorePaths.COURSES).document(courseId)
@@ -137,6 +112,56 @@ public class PodiumActivity extends AppCompatActivity {
                         }
                     }
                     updateRatio();
+                });
+    }
+
+    // 이 수업 질문 실시간으로 받기
+    private void listenQuestions() {
+        questionListener = db.collection(FirestorePaths.COURSES).document(courseId)
+                .collection(FirestorePaths.QUESTIONS)
+                .whereEqualTo("sessionId", sessionId)
+                .addSnapshotListener((value, error) -> {
+                    if (error != null || value == null) {
+                        return;
+                    }
+
+                    questionList.clear();
+                    for (DocumentSnapshot doc : value.getDocuments()) {
+                        // 숨긴 질문은 교탁에서도 안 보이게
+                        if (!"visible".equals(doc.getString("status"))) {
+                            continue;
+                        }
+
+                        PodiumQuestion q = new PodiumQuestion();
+                        q.id = doc.getId();
+                        q.content = doc.getString("content");
+
+                        Long likes = doc.getLong("likeCount");
+                        q.likeCount = likes != null ? likes : 0;
+
+                        Timestamp createdAt = doc.getTimestamp("createdAt",
+                                DocumentSnapshot.ServerTimestampBehavior.ESTIMATE);
+                        q.createdAt = createdAt != null ? createdAt.toDate().getTime() : System.currentTimeMillis();
+
+                        Boolean answered = doc.getBoolean("answered");
+                        q.answered = answered != null && answered;
+
+                        questionList.add(q);
+                    }
+
+                    // 정렬: 답변 안 한 것 먼저 -> 궁금해요 많은 순 -> 먼저 올라온 순
+                    questionList.sort((a, b) -> {
+                        if (a.answered != b.answered) {
+                            return a.answered ? 1 : -1;
+                        }
+                        if (a.likeCount != b.likeCount) {
+                            return Long.compare(b.likeCount, a.likeCount);
+                        }
+                        return Long.compare(a.createdAt, b.createdAt);
+                    });
+
+                    binding.tvQuestionCount.setText(questionList.size() + "개");
+                    adapter.notifyDataSetChanged();
                 });
     }
 
@@ -165,6 +190,7 @@ public class PodiumActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         listenConfusion();
+        listenQuestions();
         handler.post(clock);
     }
 
@@ -174,6 +200,10 @@ public class PodiumActivity extends AppCompatActivity {
         if (confusionListener != null) {
             confusionListener.remove();
             confusionListener = null;
+        }
+        if (questionListener != null) {
+            questionListener.remove();
+            questionListener = null;
         }
         handler.removeCallbacks(clock);
     }
@@ -185,6 +215,11 @@ public class PodiumActivity extends AppCompatActivity {
             String now = new SimpleDateFormat("HH:mm", Locale.KOREA).format(new Date());
             binding.tvClock.setText(now);
             updateRatio(); // 3분 지난 사람 빠지게 같이 다시 세기
+            // 분이 바뀌면 "몇분 전"도 다시 계산하게 목록 새로 그리기
+            if (!now.equals(lastClock)) {
+                lastClock = now;
+                adapter.notifyDataSetChanged();
+            }
             handler.postDelayed(this, 1000);
         }
     };
