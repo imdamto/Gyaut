@@ -1,7 +1,9 @@
 package com.gyaut.app.question;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -19,12 +21,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import android.content.Intent;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.ListenerRegistration;
-
+import com.google.firebase.auth.FirebaseAuth;
+import android.widget.Toast;
 import java.util.ArrayList;
 public class Question_StudentActivity extends AppCompatActivity {
     FirebaseFirestore db;
     RecyclerView recyclerQuestions;
-    String courseId = "test-course";
+    String courseId;
     ArrayList<Question> questionList;
     QuestionAdapter adapter;
     ListenerRegistration listener;
@@ -34,7 +37,7 @@ public class Question_StudentActivity extends AppCompatActivity {
 
         // 질문 입력 화면 연결
         setContentView(R.layout.activity_question);
-
+        courseId = getIntent().getStringExtra("courseId");
         // 1. 화면의 입력창과 버튼 연결
         EditText editQuestion = findViewById(R.id.editQuestion);
         Button btnSubmit = findViewById(R.id.btnSubmit);
@@ -56,57 +59,7 @@ public class Question_StudentActivity extends AppCompatActivity {
 
                     // 4. 버튼 클릭 이벤트
                     btnSubmit.setOnClickListener(v -> {
-
-                        Log.d("ButtonTest", "버튼 클릭됨");
-
-                        String content = editQuestion.getText()
-                                .toString().trim();
-
-                        Log.d("ButtonTest", "입력된 내용: [" + content + "]");
-
-                        // 입력값 검사
-                        // 현재 로그인한 사용자 확인
-                        if (auth.getCurrentUser() == null) {
-                            Toast.makeText(this, "로그인이 필요합니다.",
-                                    Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-
-// 질문 데이터 생성
-                        Map<String, Object> question = new HashMap<>();
-
-                        question.put("authorUid", auth.getCurrentUser().getUid());
-                        question.put("content", content);
-                        question.put("createdAt", FieldValue.serverTimestamp());
-                        question.put("likeCount", 0);
-                        question.put("sessionId", "test-session");
-                        question.put("status", "visible");
-                        question.put("topic", "RecyclerView");
-                        question.put("week", 10);
-// Firebase에 질문 저장
-                        db.collection("courses")
-                                .document(courseId)
-                                .collection("questions")
-                                .add(question)
-                                .addOnSuccessListener(documentReference -> {
-
-                                    Toast.makeText(this, "질문이 등록되었습니다.",
-                                            Toast.LENGTH_SHORT).show();
-
-                                    editQuestion.setText("");
-
-                                    Log.d("FirebaseTest",
-                                            "문서 ID: " + documentReference.getId());
-
-                                })
-                                .addOnFailureListener(e -> {
-
-                                    Toast.makeText(this, "질문 등록 실패",
-                                            Toast.LENGTH_SHORT).show();
-
-                                    Log.e("FirebaseTest", "질문 저장 실패", e);
-
-                                });
+                        checkWarningBeforeSubmit();
                     });
                 })
                 .addOnFailureListener(e -> {
@@ -153,8 +106,56 @@ public class Question_StudentActivity extends AppCompatActivity {
                 false
         );
         recyclerQuestions.setAdapter(adapter);
-
         loadQuestions();
+    }
+    private void submitQuestion() {
+
+        EditText editQuestion = findViewById(R.id.editQuestion);
+
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+
+        String content = editQuestion.getText()
+                .toString().trim();
+
+        if (auth.getCurrentUser() == null) {
+            Toast.makeText(this, "로그인이 필요합니다.",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Map<String, Object> question = new HashMap<>();
+
+        question.put("authorUid", auth.getCurrentUser().getUid());
+        question.put("content", content);
+        question.put("createdAt", FieldValue.serverTimestamp());
+        question.put("likeCount", 0);
+        question.put("sessionId", "test-session");
+        question.put("status", "visible");
+        question.put("topic", "RecyclerView");
+        question.put("week", 10);
+
+        db.collection("courses")
+                .document(courseId)
+                .collection("questions")
+                .add(question)
+                .addOnSuccessListener(documentReference -> {
+
+                    Toast.makeText(this, "질문이 등록되었습니다.",
+                            Toast.LENGTH_SHORT).show();
+
+                    editQuestion.setText("");
+
+                    Log.d("FirebaseTest",
+                            "문서 ID: " + documentReference.getId());
+
+                })
+                .addOnFailureListener(e -> {
+
+                    Toast.makeText(this, "질문 등록 실패",
+                            Toast.LENGTH_SHORT).show();
+
+                    Log.e("FirebaseTest", "질문 저장 실패", e);
+                });
     }
     private void loadQuestions() {
 
@@ -273,19 +274,73 @@ public class Question_StudentActivity extends AppCompatActivity {
     }
     private void showWarningDialog() {
 
-        new androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle("⚠ 경고 1회 부여")
-                .setMessage(
-                        "작성하신 질문이 강의 운영 기준에 부합하지 않아 " +
-                                "교수자로부터 경고를 받았습니다.\n\n" +
-                                "앞으로 질문을 작성할 때 강의와 관련된 내용인지 확인하고, " +
-                                "다른 참여자를 존중하는 표현을 사용해 주세요.\n\n" +
-                                "현재 누적 경고: 1회"
-                )
-                .setPositiveButton("확인", (dialog, which) -> {
-                    dialog.dismiss();
+        View view = getLayoutInflater()
+                .inflate(R.layout.dialog_warning, null);
+
+        AlertDialog dialog =
+                new AlertDialog.Builder(this)
+                        .setView(view)
+                        .create();
+
+        Button buttonConfirm =
+                view.findViewById(R.id.buttonConfirm);
+
+        buttonConfirm.setOnClickListener(v -> {
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+    private void showBlockedDialog() {
+        View view = getLayoutInflater()
+                .inflate(R.layout.dialog_blocked, null);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(view)
+                .create();
+
+        Button buttonConfirm =
+                view.findViewById(R.id.buttonBlockedConfirm);
+
+        buttonConfirm.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
+    }
+    private void checkWarningBeforeSubmit() {
+        String uid = FirebaseAuth.getInstance().getUid();
+
+        if (uid == null || courseId == null) {
+            Toast.makeText(this, "사용자 또는 강의 정보를 확인할 수 없습니다.",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        db.collection("courses")
+                .document(courseId)
+                .collection("members")
+                .document(uid)
+                .get()
+                .addOnSuccessListener(document -> {
+
+                    if (!document.exists()) {
+                        Toast.makeText(this, "강의 수강 정보를 찾을 수 없습니다.",
+                                Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    Long count = document.getLong("warningCount");
+                    long warningCount = count == null ? 0 : count;
+
+                    if (warningCount >= 2) {
+                        showBlockedDialog();
+                        return;
+                    }
+
+                    submitQuestion();
                 })
-                .show();
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "경고 정보를 확인하지 못했습니다.",
+                                Toast.LENGTH_SHORT).show());
     }
     @Override
     protected void onDestroy() {

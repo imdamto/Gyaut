@@ -33,6 +33,9 @@ public class QuestionAdapter extends
         void onHideClick(Question question);
         default void onLikeClick(Question question) {
         }
+        default void onWarningClick(Question question) {
+
+        }
         default void onAnswerClick(Question question) {
         }
     }

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="#FFFFFF">
+
+    <TextView
+        android:id="@+id/textBlockedTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="질문 작성 제한"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="#C62828"
+        android:gravity="center"
+        android:layout_marginBottom="20dp" />
+
+    <TextView
+        android:id="@+id/textBlockedMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="경고가 2회 누적되어 해당 강의에서 질문 작성이 제한되었습니다."
+        android:textSize="16sp"
+        android:textColor="#333333"
+        android:gravity="center"
+        android:lineSpacingExtra="6dp"
+        android:layout_marginBottom="24dp" />
+
+    <Button
+        android:id="@+id/buttonBlockedConfirm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="확인"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#C62828" />
+
+</LinearLayout>

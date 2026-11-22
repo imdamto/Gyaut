@@ -127,6 +127,7 @@ public class JoinCourseActivity extends AppCompatActivity {
         Map<String, Object> member = new HashMap<>();
         member.put("role", UserRole.STUDENT);
         member.put("name", name);
+        member.put("warningCount", 0);
 
         WriteBatch batch = db.batch();
         batch.set(courseRef.collection(FirestorePaths.MEMBERS).document(uid), member);

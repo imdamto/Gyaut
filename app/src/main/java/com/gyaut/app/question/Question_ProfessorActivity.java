@@ -11,7 +11,8 @@ import android.content.Intent;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.ListenerRegistration;
-
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import java.util.ArrayList;
 
 public class Question_ProfessorActivity extends AppCompatActivity {
@@ -54,10 +55,13 @@ public class Question_ProfessorActivity extends AppCompatActivity {
                     public void onDeleteClick(Question question) {
                         showDeleteDialog(question);
                     }
-
                     @Override
                     public void onHideClick(Question question) {
                         toggleQuestionStatus(question);
+                    }
+                    @Override
+                    public void onWarningClick(Question question) {
+                        giveWarning(question.authorUid);
                     }
                     @Override
                     public void onAnswerClick(Question question) {
@@ -80,7 +84,48 @@ public class Question_ProfessorActivity extends AppCompatActivity {
         // 5. Firebase 질문 불러오기
         loadQuestions();
     }
+    private void giveWarning(String studentUid) {
 
+        if (studentUid == null || studentUid.isEmpty()) {
+            Toast.makeText(this, "학생 정보를 찾을 수 없습니다.",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+        DocumentReference userRef = db.collection("courses")
+                .document(courseId)
+                .collection("members")
+                .document(studentUid);
+        db.runTransaction(transaction -> {
+
+            DocumentSnapshot snapshot = transaction.get(userRef);
+
+            if (!snapshot.exists()) {
+                throw new IllegalStateException("학생 문서가 없습니다.");
+            }
+
+            Long count = snapshot.getLong("warning");
+
+            long currentCount = count != null ? count : 0;
+            long newCount = Math.min(currentCount + 1, 2);
+
+            transaction.update(userRef, "warning", newCount);
+
+            return newCount;
+
+        }).addOnSuccessListener(count -> {
+
+            Toast.makeText(this,
+                    "경고 " + count + "회 부여 완료",
+                    Toast.LENGTH_SHORT).show();
+
+        }).addOnFailureListener(e -> {
+
+            Toast.makeText(this,
+                    "경고 처리 실패: " + e.getMessage(),
+                    Toast.LENGTH_SHORT).show();
+
+        });
+    }
     private void loadQuestions() {
 
         listener = db.collection("courses")

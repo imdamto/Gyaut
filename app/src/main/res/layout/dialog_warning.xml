@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="#FFFFFF">
+
+    <TextView
+        android:id="@+id/textWarningTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="⚠ 경고 1회 부여"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#D32F2F"
+        android:gravity="center"
+        android:layout_marginBottom="20dp" />
+
+    <TextView
+        android:id="@+id/textWarningMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="작성하신 질문이 강의 운영 기준에 부합하지 않아 경고를 받았습니다."
+        android:textSize="16sp"
+        android:textColor="#333333"
+        android:gravity="center"
+        android:layout_marginBottom="20dp" />
+
+    <Button
+        android:id="@+id/buttonConfirm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="확인"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#205D99" />
+
+</LinearLayout>
