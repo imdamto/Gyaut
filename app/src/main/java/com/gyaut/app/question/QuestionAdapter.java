@@ -8,7 +8,7 @@ import android.widget.Button;
 import com.google.firebase.auth.FirebaseAuth;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
+import android.view.View;
 import com.gyaut.app.R;
 
 import java.util.List;
@@ -32,6 +32,8 @@ public class QuestionAdapter extends
         void onDeleteClick(Question question);
         void onHideClick(Question question);
         default void onLikeClick(Question question) {
+        }
+        default void onAnswerClick(Question question) {
         }
     }
 
@@ -61,7 +63,7 @@ public class QuestionAdapter extends
                 question.week + "주차 · " + question.topic);
 
         holder.textLikeCount.setText(
-                "공감 " + question.likeCount + "개");
+                "나도 궁금해요" + question.likeCount + "명");
 
         if ("visible".equals(question.status)) {
             holder.textStatus.setText("공개");
@@ -71,7 +73,9 @@ public class QuestionAdapter extends
 
         // 삭제 버튼 클릭
         if (isProfessor) {
-
+            holder.buttonHide.setVisibility(View.VISIBLE);
+            holder.buttonWarning.setVisibility(View.VISIBLE);
+            holder.buttonDelete.setVisibility(View.VISIBLE);
             // 질문 상태에 따라 버튼 이름 변경
             if ("visible".equals(question.status)) {
                 holder.buttonHide.setText("숨김");
@@ -91,38 +95,46 @@ public class QuestionAdapter extends
             holder.buttonDelete.setOnClickListener(v -> {
                 listener.onDeleteClick(question);
             });
-
+            holder.buttonAnswer.setText("답변 작성");
+            holder.buttonLike.setVisibility(View.GONE);
         } else {
 
-        String uid = FirebaseAuth.getInstance()
-                .getUid();
+            // 교수용 버튼 숨기기
+            holder.buttonHide.setVisibility(View.GONE);
+            holder.buttonWarning.setVisibility(View.GONE);
+            holder.buttonDelete.setVisibility(View.GONE);
 
-        // 현재 학생이 이미 공감했는지 확인
-        boolean isLiked =
-                uid != null &&
-                        question.likedUsers != null &&
-                        question.likedUsers.contains(uid);
+            // 학생용 버튼 표시
+            holder.buttonLike.setVisibility(View.VISIBLE);
 
-        // 공감 여부에 따라 버튼 이름 변경
-        if (isLiked) {
-            holder.buttonHide.setText("공감 취소");
-        } else {
-            holder.buttonHide.setText("공감");
+            holder.buttonAnswer.setText("답변 보기");
+
+            String uid = FirebaseAuth.getInstance().getUid();
+
+            boolean isLiked =
+                    uid != null &&
+                            question.likedUsers != null &&
+                            question.likedUsers.contains(uid);
+
+            // 공감 여부에 따라 버튼 이름 변경
+            if (isLiked) {
+                holder.buttonLike.setText("궁금해요 취소");
+            } else {
+                holder.buttonLike.setText("나도 궁금해요");
+            }
+
+            // 기존 공감 기능 연결
+            holder.buttonLike.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onLikeClick(question);
+                }
+            });
         }
-
-        holder.buttonWarning.setText("버튼 2");
-        holder.buttonDelete.setText("버튼 3");
-
-        // 공감 버튼 클릭
-        holder.buttonHide.setOnClickListener(v -> {
+        holder.buttonAnswer.setOnClickListener(v -> {
             if (listener != null) {
-                listener.onLikeClick(question);
+                listener.onAnswerClick(question);
             }
         });
-
-        holder.buttonWarning.setOnClickListener(null);
-        holder.buttonDelete.setOnClickListener(null);
-    }
     }
 
     // 전체 질문 개수 반환
@@ -143,7 +155,8 @@ public class QuestionAdapter extends
         Button buttonHide;
         Button buttonWarning;
         Button buttonDelete;
-
+        Button buttonAnswer;
+        Button buttonLike;
         public QuestionViewHolder(@NonNull View itemView) {
             super(itemView);
 
@@ -155,6 +168,8 @@ public class QuestionAdapter extends
             buttonHide = itemView.findViewById(R.id.buttonHide);
             buttonWarning = itemView.findViewById(R.id.buttonWarning);
             buttonDelete = itemView.findViewById(R.id.buttonDelete);
+            buttonAnswer = itemView.findViewById(R.id.buttonAnswer);
+            buttonLike = itemView.findViewById(R.id.buttonLike);
         }
     }
 }

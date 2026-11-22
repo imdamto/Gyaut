@@ -22,12 +22,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".question.QuestionActivity"
-            android:exported="false"
+            android:name=".question.Question_StudentActivity"
+            android:exported="true"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".question.QuestionListActivity"
-            android:exported="false"
+            android:name=".question.Question_ProfessorActivity"
+            android:exported="true"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".auth.LoginActivity"
@@ -55,6 +55,14 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".realtime.PodiumActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".question.AnswerWriteActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".question.AnswerViewActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
     </application>

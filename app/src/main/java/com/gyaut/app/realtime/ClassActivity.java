@@ -17,8 +17,8 @@ import com.gyaut.app.common.FirestorePaths;
 import com.gyaut.app.common.IntentKeys;
 import com.gyaut.app.common.WindowInsetsHelper;
 import com.gyaut.app.databinding.ActivityClassBinding;
-import com.gyaut.app.question.QuestionActivity;
-import com.gyaut.app.question.QuestionListActivity;
+import com.gyaut.app.question.Question_StudentActivity;
+import com.gyaut.app.question.Question_ProfessorActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.Timestamp;
@@ -63,7 +63,7 @@ public class ClassActivity extends AppCompatActivity {
 
         // 익명 질문 작성 -> 질문 쓰는 화면
         binding.btnWrite.setOnClickListener(v -> {
-            Intent intent = new Intent(ClassActivity.this, QuestionActivity.class);
+            Intent intent = new Intent(ClassActivity.this, Question_StudentActivity.class);
             intent.putExtra(IntentKeys.COURSE_ID, courseId);
             intent.putExtra(IntentKeys.SESSION_ID, sessionId);
             startActivity(intent);
@@ -71,7 +71,7 @@ public class ClassActivity extends AppCompatActivity {
 
         // 오늘의 질문 보기 -> 질문 목록
         binding.btnQuestions.setOnClickListener(v -> {
-            Intent intent = new Intent(ClassActivity.this, QuestionListActivity.class);
+            Intent intent = new Intent(ClassActivity.this, Question_ProfessorActivity.class);
             intent.putExtra(IntentKeys.COURSE_ID, courseId);
             intent.putExtra(IntentKeys.SESSION_ID, sessionId);
             startActivity(intent);

@@ -39,7 +39,7 @@ import com.gyaut.app.common.WindowInsetsHelper;
 import com.gyaut.app.course.CourseListActivity;
 import com.gyaut.app.databinding.ActivityLoginBinding;
 import com.gyaut.app.databinding.DialogSelectRoleBinding;
-import com.gyaut.app.question.QuestionListActivity;
+import com.gyaut.app.question.Question_ProfessorActivity;
 import com.gyaut.app.realtime.ClassActivity;
 import com.gyaut.app.realtime.PodiumActivity;
 
@@ -77,7 +77,7 @@ public class LoginActivity extends AppCompatActivity {
 
         // TODO: 과목 → 수업 화면 연결되면 임시 버튼 세 개와 testLoginThenGo() 삭제 예정
         binding.btnGoClass.setOnClickListener(v -> testLoginThenGo("student1@gyaut.test", ClassActivity.class));
-        binding.btnGoQuestion.setOnClickListener(v -> testLoginThenGo("student1@gyaut.test", QuestionListActivity.class));
+        binding.btnGoQuestion.setOnClickListener(v -> testLoginThenGo("student1@gyaut.test", Question_ProfessorActivity.class));
         binding.btnGoPodium.setOnClickListener(v -> testLoginThenGo("prof1@gyaut.test", PodiumActivity.class));
     }
 

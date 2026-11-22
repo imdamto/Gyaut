@@ -16,12 +16,12 @@ import java.util.HashMap;
 import java.util.Map;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.LinearLayoutManager;
-
+import android.content.Intent;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.ArrayList;
-public class QuestionActivity extends AppCompatActivity {
+public class Question_StudentActivity extends AppCompatActivity {
     FirebaseFirestore db;
     RecyclerView recyclerQuestions;
     String courseId = "test-course";
@@ -135,6 +135,19 @@ public class QuestionActivity extends AppCompatActivity {
                     @Override
                     public void onLikeClick(Question question) {
                         toggleLike(question);
+                    }
+                    @Override
+                    public void onAnswerClick(Question question) {
+
+                        Intent intent = new Intent(
+                                Question_StudentActivity.this,
+                                AnswerViewActivity.class
+                        );
+
+                        intent.putExtra("courseId", courseId);
+                        intent.putExtra("questionId", question.id);
+
+                        startActivity(intent);
                     }
                 },
                 false
@@ -257,6 +270,22 @@ public class QuestionActivity extends AppCompatActivity {
 
             Log.e("FirebaseTest", "공감 처리 실패", e);
         });
+    }
+    private void showWarningDialog() {
+
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("⚠ 경고 1회 부여")
+                .setMessage(
+                        "작성하신 질문이 강의 운영 기준에 부합하지 않아 " +
+                                "교수자로부터 경고를 받았습니다.\n\n" +
+                                "앞으로 질문을 작성할 때 강의와 관련된 내용인지 확인하고, " +
+                                "다른 참여자를 존중하는 표현을 사용해 주세요.\n\n" +
+                                "현재 누적 경고: 1회"
+                )
+                .setPositiveButton("확인", (dialog, which) -> {
+                    dialog.dismiss();
+                })
+                .show();
     }
     @Override
     protected void onDestroy() {
