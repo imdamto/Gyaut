@@ -93,6 +93,14 @@
                     android:textColor="@color/text2"
                     android:textSize="14sp"
                     tools:text="월 09:00, 수 10:30 · 48명" />
+
+                <Button
+                    android:id="@+id/btnJoin"
+                    style="@style/Widget.Gyaut.Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="등록하기" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
