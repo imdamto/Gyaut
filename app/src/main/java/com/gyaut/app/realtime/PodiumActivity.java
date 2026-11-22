@@ -18,6 +18,7 @@ import com.gyaut.app.databinding.ActivityPodiumBinding;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.FieldValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +66,7 @@ public class PodiumActivity extends AppCompatActivity {
         loadClassInfo();
 
         // 질문 목록 준비
-        adapter = new PodiumQuestionAdapter(questionList);
+        adapter = new PodiumQuestionAdapter(questionList, question -> markAnswered(question));
         binding.rvQuestions.setLayoutManager(new LinearLayoutManager(this));
         binding.rvQuestions.setAdapter(adapter);
 
@@ -163,6 +164,15 @@ public class PodiumActivity extends AppCompatActivity {
                     binding.tvQuestionCount.setText(questionList.size() + "개");
                     adapter.notifyDataSetChanged();
                 });
+    }
+
+    // 답변 완료 저장 -> 리스너가 다시 받아서 맨 밑으로 정렬됨
+    private void markAnswered(PodiumQuestion question) {
+        db.collection(FirestorePaths.COURSES).document(courseId)
+                .collection(FirestorePaths.QUESTIONS).document(question.id)
+                .update("answered", true, "answeredAt", FieldValue.serverTimestamp())
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "저장 실패: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
     // 3분 안에 누른 사람 세서 %, 몇명 중 몇명, 막대 바꾸기

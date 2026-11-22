@@ -15,9 +15,16 @@ import java.util.List;
 public class PodiumQuestionAdapter extends RecyclerView.Adapter<PodiumQuestionAdapter.QuestionViewHolder> {
 
     private List<PodiumQuestion> questions;
+    private OnAnsweredListener answeredListener;
 
-    public PodiumQuestionAdapter(List<PodiumQuestion> questions) {
+    // 답변 완료 눌렀을 때 할 일 (화면에서 정해서 넘겨줌)
+    public interface OnAnsweredListener {
+        void onAnswered(PodiumQuestion question);
+    }
+
+    public PodiumQuestionAdapter(List<PodiumQuestion> questions, OnAnsweredListener answeredListener) {
         this.questions = questions;
+        this.answeredListener = answeredListener;
     }
 
     // 카드 한 장 만들기
@@ -79,6 +86,9 @@ public class PodiumQuestionAdapter extends RecyclerView.Adapter<PodiumQuestionAd
                 binding.getRoot().setAlpha(1f);
                 binding.btnAnswered.setVisibility(View.VISIBLE);
             }
+
+            // 답변 완료 누르면 화면한테 알려주기
+            binding.btnAnswered.setOnClickListener(v -> answeredListener.onAnswered(question));
         }
     }
 }
