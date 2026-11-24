@@ -12,13 +12,16 @@ import com.gyaut.app.common.IntentKeys;
 import com.gyaut.app.common.WindowInsetsHelper;
 import com.gyaut.app.databinding.ActivityCourseDetailBinding;
 
-// 교수: 과목 하나의 상세 화면
+// 교수: 과목 하나의 상세 화면. 여기서 수업을 시작함
 public class CourseDetailActivity extends AppCompatActivity {
 
     private ActivityCourseDetailBinding binding;
     private FirebaseFirestore db;
     private String courseId;
     private ListenerRegistration courseListener;
+    private SessionStarter sessionStarter;
+
+    private Course course; // 지금 보고 있는 과목. 과목 문서가 바뀔 때마다 갱신
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +33,9 @@ public class CourseDetailActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         courseId = getIntent().getStringExtra(IntentKeys.COURSE_ID);
+        sessionStarter = new SessionStarter(this);
+
+        binding.btnSession.setOnClickListener(v -> onSessionClick());
     }
 
     @Override
@@ -44,7 +50,7 @@ public class CourseDetailActivity extends AppCompatActivity {
         courseListener.remove();
     }
 
-    // 과목 문서를 실시간으로 지켜봄 (학생이 등록하면 학생 수가 바로 바뀜)
+    // 과목 문서를 실시간으로 지켜봄 (학생 수, 수업 진행 여부가 바뀌면 바로 반영)
     private void listenCourse() {
         courseListener = db.collection(FirestorePaths.COURSES).document(courseId)
                 .addSnapshotListener((doc, error) -> {
@@ -56,8 +62,21 @@ public class CourseDetailActivity extends AppCompatActivity {
     }
 
     private void showCourse(Course course) {
+        this.course = course;
         binding.tvTitle.setText(course.titleText());
         binding.tvInfo.setText(course.infoText());
         binding.tvJoinCode.setText(course.joinCode);
+
+        binding.btnSession.setText(course.liveSessionId != null ? "교탁 모드 열기" : "수업 시작");
+        binding.btnSession.setEnabled(true);
+    }
+
+    // 수업 중이면 교탁 모드로, 아니면 수업 시작
+    private void onSessionClick() {
+        if (course.liveSessionId != null) {
+            SessionStarter.openPodium(this, courseId, course.liveSessionId);
+        } else {
+            sessionStarter.start(courseId);
+        }
     }
 }

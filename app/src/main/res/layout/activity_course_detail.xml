@@ -75,5 +75,14 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <Button
+            android:id="@+id/btnSession"
+            style="@style/Widget.Gyaut.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:enabled="false"
+            android:text="수업 시작" />
+
     </LinearLayout>
 </ScrollView>
