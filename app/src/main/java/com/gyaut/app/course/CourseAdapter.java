@@ -18,6 +18,17 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
     private final List<Course> courses = new ArrayList<>();
     private boolean professor; // 교수에게만 참여 코드를 보여 줌
 
+    // 카드를 눌렀을 때 화면(Activity)에 알려 주는 통로
+    public interface OnCourseClickListener {
+        void onCourseClick(Course course);
+    }
+
+    private final OnCourseClickListener listener;
+
+    public CourseAdapter(OnCourseClickListener listener) {
+        this.listener = listener;
+    }
+
     public void setProfessor(boolean professor) {
         this.professor = professor;
         notifyDataSetChanged();
@@ -40,7 +51,9 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
 
     @Override
     public void onBindViewHolder(@NonNull CourseViewHolder holder, int position) {
-        holder.bind(courses.get(position), professor);
+        Course course = courses.get(position);
+        holder.bind(course, professor);
+        holder.itemView.setOnClickListener(v -> listener.onCourseClick(course));
     }
 
     @Override

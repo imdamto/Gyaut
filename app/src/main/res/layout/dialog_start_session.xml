@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 수업 시작 전에 주차와 주제를 입력하는 창 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingStart="24dp"
+    android:paddingTop="16dp"
+    android:paddingEnd="24dp">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/inputWeek"
+        style="@style/Widget.Gyaut.TextInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="주차">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editWeek"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:maxLength="2"
+            android:textColor="@color/text" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/inputTopic"
+        style="@style/Widget.Gyaut.TextInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:hint="오늘 주제 (선택)">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTopic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:maxLength="30"
+            android:textColor="@color/text" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+</LinearLayout>

@@ -12,6 +12,7 @@ public class Course {
     public List<String> schedule; // 예: ["월 09:00", "수 10:30"]
     public String joinCode;
     public long studentCount;
+    public String liveSessionId;  // 진행 중인 수업 ID. 수업 중이 아니면 null
 
     // Firestore 문서 → Course
     @SuppressWarnings("unchecked")
@@ -24,6 +25,7 @@ public class Course {
         course.joinCode = doc.getString("joinCode");
         Long count = doc.getLong("studentCount"); // 숫자는 Long으로 꺼냄
         course.studentCount = count == null ? 0 : count;
+        course.liveSessionId = doc.getString("liveSessionId");
         return course;
     }
 

@@ -18,7 +18,9 @@ import com.gyaut.app.auth.LoginActivity;
 import com.gyaut.app.common.FirestorePaths;
 import com.gyaut.app.common.UserRole;
 import com.gyaut.app.common.WindowInsetsHelper;
+import com.gyaut.app.common.IntentKeys;
 import com.gyaut.app.databinding.ActivityCourseListBinding;
+import com.gyaut.app.realtime.ClassActivity;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,6 +35,7 @@ public class CourseListActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private FirebaseFirestore db;
     private CourseAdapter adapter;
+    private boolean professor; // 카드를 눌렀을 때 어디로 갈지 정할 때 씀
 
     // 실시간 구독. 화면이 안 보이게 되면 remove()로 끊어야 함
     private ListenerRegistration myCoursesListener;                                    // 내 과목 ID 목록
@@ -50,7 +53,7 @@ public class CourseListActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        adapter = new CourseAdapter();
+        adapter = new CourseAdapter(course -> openCourse(course));
         binding.listCourses.setAdapter(adapter);
 
         binding.btnLogout.setOnClickListener(v -> confirmLogout());
@@ -88,6 +91,7 @@ public class CourseListActivity extends AppCompatActivity {
 
     // 역할에 맞게 이름 표시, 아래 버튼 글자·이동 화면, 빈 목록 안내, 참여 코드 표시 정하기
     private void showUser(String name, boolean professor) {
+        this.professor = professor;
         binding.tvUser.setText(name + " · " + (professor ? "교수" : "학생"));
 
         binding.btnAddCourse.setText(professor ? "+ 과목 개설" : "+ 과목 등록");
@@ -100,6 +104,22 @@ public class CourseListActivity extends AppCompatActivity {
                 : "아직 등록한 과목이 없어요\n교수님께 받은 코드로 등록해 보세요");
 
         adapter.setProfessor(professor);
+    }
+
+    // 과목 카드를 눌렀을 때. 교수는 과목 상세 화면, 학생은 진행 중인 수업으로
+    private void openCourse(Course course) {
+        if (professor) {
+            Intent intent = new Intent(this, CourseDetailActivity.class);
+            intent.putExtra(IntentKeys.COURSE_ID, course.id);
+            startActivity(intent);
+        } else if (course.liveSessionId != null) {
+            Intent intent = new Intent(this, ClassActivity.class);
+            intent.putExtra(IntentKeys.COURSE_ID, course.id);
+            intent.putExtra(IntentKeys.SESSION_ID, course.liveSessionId);
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "지금 진행 중인 수업이 없어요", Toast.LENGTH_SHORT).show();
+        }
     }
 
     // users/{uid}/myCourses를 실시간으로 지켜봄 → 과목을 개설·등록하면 목록에 바로 나타남
