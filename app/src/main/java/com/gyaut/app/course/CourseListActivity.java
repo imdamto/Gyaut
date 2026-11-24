@@ -20,6 +20,7 @@ import com.gyaut.app.common.UserRole;
 import com.gyaut.app.common.WindowInsetsHelper;
 import com.gyaut.app.common.IntentKeys;
 import com.gyaut.app.databinding.ActivityCourseListBinding;
+import com.gyaut.app.realtime.ClassActivity;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -105,12 +106,19 @@ public class CourseListActivity extends AppCompatActivity {
         adapter.setProfessor(professor);
     }
 
-    // 과목 카드를 눌렀을 때. 교수는 과목 상세 화면으로
+    // 과목 카드를 눌렀을 때. 교수는 과목 상세 화면, 학생은 진행 중인 수업으로
     private void openCourse(Course course) {
         if (professor) {
             Intent intent = new Intent(this, CourseDetailActivity.class);
             intent.putExtra(IntentKeys.COURSE_ID, course.id);
             startActivity(intent);
+        } else if (course.liveSessionId != null) {
+            Intent intent = new Intent(this, ClassActivity.class);
+            intent.putExtra(IntentKeys.COURSE_ID, course.id);
+            intent.putExtra(IntentKeys.SESSION_ID, course.liveSessionId);
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "지금 진행 중인 수업이 없어요", Toast.LENGTH_SHORT).show();
         }
     }
 
