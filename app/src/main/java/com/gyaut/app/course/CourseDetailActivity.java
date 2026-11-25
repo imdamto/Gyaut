@@ -1,13 +1,16 @@
 package com.gyaut.app.course;
 
-import android.os.Bundle;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.gyaut.app.common.FirestorePaths;
@@ -15,7 +18,7 @@ import com.gyaut.app.common.IntentKeys;
 import com.gyaut.app.common.WindowInsetsHelper;
 import com.gyaut.app.databinding.ActivityCourseDetailBinding;
 
-// 교수: 과목 하나의 상세 화면. 여기서 수업을 시작함
+// 교수: 과목 하나의 상세 화면. 여기서 수업을 시작하고 끝냄
 public class CourseDetailActivity extends AppCompatActivity {
 
     private ActivityCourseDetailBinding binding;
@@ -39,6 +42,7 @@ public class CourseDetailActivity extends AppCompatActivity {
         sessionStarter = new SessionStarter(this);
 
         binding.btnSession.setOnClickListener(v -> onSessionClick());
+        binding.btnEndSession.setOnClickListener(v -> confirmEndSession());
         binding.btnCopyCode.setOnClickListener(v -> copyCode());
     }
 
@@ -71,8 +75,10 @@ public class CourseDetailActivity extends AppCompatActivity {
         binding.tvInfo.setText(course.infoText());
         binding.tvJoinCode.setText(course.joinCode);
 
-        binding.btnSession.setText(course.liveSessionId != null ? "교탁 모드 열기" : "수업 시작");
+        boolean live = course.liveSessionId != null;
+        binding.btnSession.setText(live ? "교탁 모드 열기" : "수업 시작");
         binding.btnSession.setEnabled(true);
+        binding.btnEndSession.setVisibility(live ? View.VISIBLE : View.GONE);
         binding.btnCopyCode.setEnabled(true);
     }
 
@@ -83,6 +89,22 @@ public class CourseDetailActivity extends AppCompatActivity {
         } else {
             sessionStarter.start(courseId);
         }
+    }
+
+    private void confirmEndSession() {
+        new MaterialAlertDialogBuilder(this)
+                .setMessage("수업을 종료할까요?")
+                .setPositiveButton("종료", (dialog, which) -> endSession())
+                .setNegativeButton("취소", null)
+                .show();
+    }
+
+    // 과목 문서에서 진행 중인 수업 ID를 지움 → 모든 화면에서 LIVE가 사라짐
+    private void endSession() {
+        db.collection(FirestorePaths.COURSES).document(courseId)
+                .update("liveSessionId", FieldValue.delete())
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "수업을 종료하지 못했어요. 다시 시도해 주세요", Toast.LENGTH_LONG).show());
     }
 
     // 참여 코드를 클립보드에 복사 (학생들에게 단톡방 등으로 보낼 때)

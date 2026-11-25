@@ -43,6 +43,16 @@
             android:enabled="false"
             android:text="수업 시작" />
 
+        <!-- 수업 중일 때만 보임 -->
+        <Button
+            android:id="@+id/btnEndSession"
+            style="@style/Widget.Gyaut.Button.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="수업 종료"
+            android:visibility="gone" />
+
         <!-- 참여 코드. 학기 초에만 쓰니까 작게 -->
         <LinearLayout
             android:layout_width="match_parent"
