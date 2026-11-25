@@ -1,6 +1,9 @@
 package com.gyaut.app.course;
 
 import android.os.Bundle;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,6 +39,7 @@ public class CourseDetailActivity extends AppCompatActivity {
         sessionStarter = new SessionStarter(this);
 
         binding.btnSession.setOnClickListener(v -> onSessionClick());
+        binding.btnCopyCode.setOnClickListener(v -> copyCode());
     }
 
     @Override
@@ -69,6 +73,7 @@ public class CourseDetailActivity extends AppCompatActivity {
 
         binding.btnSession.setText(course.liveSessionId != null ? "교탁 모드 열기" : "수업 시작");
         binding.btnSession.setEnabled(true);
+        binding.btnCopyCode.setEnabled(true);
     }
 
     // 수업 중이면 교탁 모드로, 아니면 수업 시작
@@ -78,5 +83,12 @@ public class CourseDetailActivity extends AppCompatActivity {
         } else {
             sessionStarter.start(courseId);
         }
+    }
+
+    // 참여 코드를 클립보드에 복사 (학생들에게 단톡방 등으로 보낼 때)
+    private void copyCode() {
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        clipboard.setPrimaryClip(ClipData.newPlainText("참여 코드", course.joinCode));
+        Toast.makeText(this, "코드를 복사했어요", Toast.LENGTH_SHORT).show();
     }
 }
