@@ -1,6 +1,7 @@
 package com.gyaut.app.course;
 
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -66,6 +67,7 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
         void bind(Course course) {
             binding.tvCourseName.setText(course.titleText());
             binding.tvCourseInfo.setText(course.infoText());
+            binding.tvLive.setVisibility(course.liveSessionId != null ? View.VISIBLE : View.GONE);
         }
     }
 }
