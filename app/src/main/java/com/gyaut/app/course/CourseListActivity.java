@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.PopupMenu;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
@@ -16,9 +17,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.gyaut.app.auth.LoginActivity;
 import com.gyaut.app.common.FirestorePaths;
+import com.gyaut.app.common.IntentKeys;
 import com.gyaut.app.common.UserRole;
 import com.gyaut.app.common.WindowInsetsHelper;
-import com.gyaut.app.common.IntentKeys;
 import com.gyaut.app.databinding.ActivityCourseListBinding;
 import com.gyaut.app.realtime.ClassActivity;
 
@@ -28,7 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// 내 과목 화면. 학생과 교수가 같이 쓰고, 역할에 따라 아래 버튼이 달라짐
+// 내 과목 화면. 학생과 교수가 같이 쓰고, 역할에 따라 + 버튼이 여는 화면이 달라짐
 public class CourseListActivity extends AppCompatActivity {
 
     private ActivityCourseListBinding binding;
@@ -56,8 +57,8 @@ public class CourseListActivity extends AppCompatActivity {
         adapter = new CourseAdapter(course -> openCourse(course));
         binding.listCourses.setAdapter(adapter);
 
-        binding.btnLogout.setOnClickListener(v -> confirmLogout());
-        binding.btnAddCourse.setEnabled(false); // 역할을 알기 전에는 눌리지 않게
+        binding.btnMore.setOnClickListener(v -> showMenu());
+        binding.btnAdd.setEnabled(false); // 역할을 알기 전에는 눌리지 않게
 
         loadUser(auth.getCurrentUser());
     }
@@ -89,19 +90,30 @@ public class CourseListActivity extends AppCompatActivity {
                 });
     }
 
-    // 역할에 맞게 이름 표시, 아래 버튼 글자·이동 화면, 빈 목록 안내, 참여 코드 표시 정하기
+    // 역할에 맞게 이름 표시, + 버튼이 열 화면, 빈 목록 안내 정하기
     private void showUser(String name, boolean professor) {
         this.professor = professor;
         binding.tvUser.setText(name + " · " + (professor ? "교수" : "학생"));
 
-        binding.btnAddCourse.setText(professor ? "+ 과목 개설" : "+ 과목 등록");
-        binding.btnAddCourse.setEnabled(true);
-        binding.btnAddCourse.setOnClickListener(v -> startActivity(new Intent(this,
+        binding.btnAdd.setEnabled(true);
+        binding.btnAdd.setContentDescription(professor ? "과목 개설" : "과목 등록");
+        binding.btnAdd.setOnClickListener(v -> startActivity(new Intent(this,
                 professor ? CreateCourseActivity.class : JoinCourseActivity.class)));
 
         binding.textEmpty.setText(professor
-                ? "아직 개설한 과목이 없어요\n아래 버튼으로 과목을 만들어 보세요"
-                : "아직 등록한 과목이 없어요\n교수님께 받은 코드로 등록해 보세요");
+                ? "아직 개설한 과목이 없어요\n오른쪽 위 + 로 과목을 만들어 보세요"
+                : "아직 등록한 과목이 없어요\n오른쪽 위 + 로 교수님께 받은 코드를 입력해 보세요");
+    }
+
+    // ⋮ 메뉴. 지금은 로그아웃 하나
+    private void showMenu() {
+        PopupMenu menu = new PopupMenu(this, binding.btnMore);
+        menu.getMenu().add("로그아웃");
+        menu.setOnMenuItemClickListener(item -> {
+            confirmLogout();
+            return true;
+        });
+        menu.show();
     }
 
     // 과목 카드를 눌렀을 때. 교수는 과목 상세 화면, 학생은 진행 중인 수업으로
@@ -140,7 +152,7 @@ public class CourseListActivity extends AppCompatActivity {
                 });
     }
 
-    // courses/{courseId} 문서 하나를 실시간으로 지켜봄 (학생 수 등이 바뀌면 바로 반영)
+    // courses/{courseId} 문서 하나를 실시간으로 지켜봄 (학생 수, 수업 진행 여부가 바뀌면 바로 반영)
     private ListenerRegistration listenCourse(String courseId) {
         return db.collection(FirestorePaths.COURSES).document(courseId)
                 .addSnapshotListener((doc, error) -> {

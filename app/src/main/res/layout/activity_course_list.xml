@@ -9,7 +9,7 @@
     android:orientation="vertical"
     tools:context=".course.CourseListActivity">
 
-    <!-- 위: 제목 + 내 이름, 역할 + 로그아웃 -->
+    <!-- 위: 제목 + 내 이름, 역할 / 오른쪽에 + (과목 개설·등록), ⋮ (로그아웃) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -43,13 +43,21 @@
                 tools:text="정재현 · 학생" />
         </LinearLayout>
 
-        <Button
-            android:id="@+id/btnLogout"
-            style="@style/Widget.Material3.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="로그아웃"
-            android:textColor="@color/text2" />
+        <ImageButton
+            android:id="@+id/btnAdd"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="과목 추가"
+            android:src="@drawable/ic_add" />
+
+        <ImageButton
+            android:id="@+id/btnMore"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="메뉴"
+            android:src="@drawable/ic_more_vert" />
     </LinearLayout>
 
     <!-- 가운데: 과목 목록. 비어 있으면 안내 글자 -->
@@ -66,7 +74,7 @@
             android:paddingStart="24dp"
             android:paddingTop="16dp"
             android:paddingEnd="24dp"
-            android:paddingBottom="8dp"
+            android:paddingBottom="24dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/item_course" />
 
@@ -80,17 +88,5 @@
             android:textColor="@color/text2"
             android:textSize="15sp" />
     </FrameLayout>
-
-    <!-- 아래: 학생은 과목 등록, 교수는 과목 개설 -->
-    <Button
-        android:id="@+id/btnAddCourse"
-        style="@style/Widget.Gyaut.Button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="24dp"
-        android:text="+ 과목 등록" />
 
 </LinearLayout>
