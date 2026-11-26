@@ -16,7 +16,6 @@ import java.util.List;
 public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseViewHolder> {
 
     private final List<Course> courses = new ArrayList<>();
-    private boolean professor; // 교수에게만 참여 코드를 보여 줌
 
     // 카드를 눌렀을 때 화면(Activity)에 알려 주는 통로
     public interface OnCourseClickListener {
@@ -27,11 +26,6 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
 
     public CourseAdapter(OnCourseClickListener listener) {
         this.listener = listener;
-    }
-
-    public void setProfessor(boolean professor) {
-        this.professor = professor;
-        notifyDataSetChanged();
     }
 
     // 목록을 새 내용으로 통째로 바꿈
@@ -52,7 +46,7 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
     @Override
     public void onBindViewHolder(@NonNull CourseViewHolder holder, int position) {
         Course course = courses.get(position);
-        holder.bind(course, professor);
+        holder.bind(course);
         holder.itemView.setOnClickListener(v -> listener.onCourseClick(course));
     }
 
@@ -70,11 +64,10 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
             this.binding = binding;
         }
 
-        void bind(Course course, boolean professor) {
+        void bind(Course course) {
             binding.tvCourseName.setText(course.titleText());
             binding.tvCourseInfo.setText(course.infoText());
-            binding.tvJoinCode.setText("참여 코드  " + course.joinCode);
-            binding.tvJoinCode.setVisibility(professor ? View.VISIBLE : View.GONE);
+            binding.tvLive.setVisibility(course.liveSessionId != null ? View.VISIBLE : View.GONE);
         }
     }
 }

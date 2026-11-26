@@ -102,8 +102,6 @@ public class CourseListActivity extends AppCompatActivity {
         binding.textEmpty.setText(professor
                 ? "아직 개설한 과목이 없어요\n아래 버튼으로 과목을 만들어 보세요"
                 : "아직 등록한 과목이 없어요\n교수님께 받은 코드로 등록해 보세요");
-
-        adapter.setProfessor(professor);
     }
 
     // 과목 카드를 눌렀을 때. 교수는 과목 상세 화면, 학생은 진행 중인 수업으로
