@@ -47,6 +47,7 @@ public class JoinCourseActivity extends AppCompatActivity {
 
         binding.btnFind.setOnClickListener(v -> findCourse());
         binding.btnJoin.setOnClickListener(v -> tryJoin());
+        binding.btnBack.setOnClickListener(v -> finish());
     }
 
     // joinCode가 입력한 코드와 같은 과목 찾기
