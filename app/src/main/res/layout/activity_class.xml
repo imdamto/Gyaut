@@ -12,24 +12,35 @@
         android:orientation="vertical"
         android:padding="24dp">
 
-        <!-- 위쪽: 왼쪽 과목정보, 오른쪽 LIVE -->
-        <LinearLayout
+        <!-- 위쪽: 왼쪽 뒤로가기, 가운데 과목정보, 오른쪽 LIVE -->
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:layout_height="wrap_content">
 
-            <!-- 과목명 + 주차·시간 두줄 -->
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="start|top"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="뒤로 가기"
+                android:src="@drawable/ic_arrow_back" />
+
+            <!-- 과목명 + 주차 + 시간표 (가운데 정렬) -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_marginStart="76dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="76dp"
+                android:gravity="center_horizontal"
                 android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/tvCourseName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:text="과목 이름"
                     android:textColor="@color/text"
                     android:textSize="22sp"
@@ -43,11 +54,13 @@
                     android:text="0주차"
                     android:textColor="@color/text2"
                     android:textSize="13sp" />
+
                 <TextView
                     android:id="@+id/tvSchedule"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
+                    android:gravity="center"
                     android:text="수요일 00:00-00:00"
                     android:textColor="@color/text2"
                     android:textSize="13sp" />
@@ -57,6 +70,8 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="end|top"
+                android:layout_marginTop="9dp"
                 app:cardBackgroundColor="@color/liveBg"
                 app:cardCornerRadius="50dp"
                 app:cardElevation="0dp"
@@ -74,7 +89,7 @@
                     android:textSize="13sp"
                     android:textStyle="bold" />
             </com.google.android.material.card.MaterialCardView>
-        </LinearLayout>
+        </FrameLayout>
 
         <!-- 구분선 -->
         <View

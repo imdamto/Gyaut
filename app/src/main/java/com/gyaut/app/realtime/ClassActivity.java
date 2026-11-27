@@ -83,6 +83,9 @@ public class ClassActivity extends AppCompatActivity {
 
         // 갸웃 원 누르면 저장
         binding.cardGyaut.setOnClickListener(v -> pressGyaut());
+
+        // 왼쪽 위 뒤로가기
+        binding.btnBack.setOnClickListener(v -> finish());
     }
 
     // 과목명, 시간표, 주차, 주제 불러오기

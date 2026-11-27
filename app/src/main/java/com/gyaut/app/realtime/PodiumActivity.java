@@ -70,6 +70,9 @@ public class PodiumActivity extends AppCompatActivity {
         binding.rvQuestions.setLayoutManager(new LinearLayoutManager(this));
         binding.rvQuestions.setAdapter(adapter);
 
+        // 왼쪽 위 뒤로가기 (수업은 계속 진행 중, 교탁 화면만 닫힘)
+        binding.btnBack.setOnClickListener(v -> finish());
+
     }
 
     // 과목명, 주차 불러오기
