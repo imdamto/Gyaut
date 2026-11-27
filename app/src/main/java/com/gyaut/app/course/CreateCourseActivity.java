@@ -22,11 +22,13 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
 import com.gyaut.app.R;
 import com.gyaut.app.common.FirestorePaths;
+import com.gyaut.app.common.IntentKeys;
 import com.gyaut.app.common.UserRole;
 import com.gyaut.app.common.WindowInsetsHelper;
 import com.gyaut.app.databinding.ActivityCreateCourseBinding;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -34,7 +36,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
-// 교수: 과목을 만들고 학생에게 알려 줄 참여 코드를 받는 화면
+// 교수: 과목을 만들거나(개설) 고치는(수정) 화면. 과목 ID를 받으면 수정 모드
 public class CreateCourseActivity extends AppCompatActivity {
 
     private static final String[] DAY_NAMES = {"월", "화", "수", "목", "금"};
@@ -45,6 +47,7 @@ public class CreateCourseActivity extends AppCompatActivity {
     private ActivityCreateCourseBinding binding;
     private FirebaseFirestore db;
     private String uid;
+    private String editCourseId; // 수정할 과목 ID. 새로 만들 때는 null
 
     // 요일 순서(월~금)대로 묶어 둔 화면 요소와, 요일마다 고른 시간
     private int[] dayButtonIds;
@@ -83,7 +86,16 @@ public class CreateCourseActivity extends AppCompatActivity {
             }
         });
 
-        binding.editSemester.setText(defaultSemester());
+        editCourseId = getIntent().getStringExtra(IntentKeys.COURSE_ID);
+        if (editCourseId != null) {
+            binding.tvTitle.setText("과목 수정");
+            binding.tvSubtitle.setText("참여 코드는 바뀌지 않아요");
+            binding.btnCreate.setText("저장하기");
+            loadCourse();
+        } else {
+            binding.editSemester.setText(defaultSemester());
+        }
+
         binding.btnCreate.setOnClickListener(v -> tryCreate());
         binding.btnBack.setOnClickListener(v -> finish());
     }
@@ -97,6 +109,47 @@ public class CreateCourseActivity extends AppCompatActivity {
             return (year - 1) + "년 2학기";
         }
         return year + "년 " + (month <= 8 ? 1 : 2) + "학기";
+    }
+
+    // 수정 모드: 과목의 지금 값을 입력칸에 채움
+    private void loadCourse() {
+        binding.btnCreate.setEnabled(false);
+        db.collection(FirestorePaths.COURSES).document(editCourseId)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    Course course = Course.from(doc);
+                    binding.editCourseName.setText(course.name);
+                    binding.editSection.setText(course.section);
+                    binding.editSemester.setText(doc.getString("semester"));
+                    showSchedule(course.schedule);
+                    binding.btnCreate.setEnabled(true);
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "과목 정보를 불러오지 못했어요", Toast.LENGTH_SHORT).show();
+                    finish();
+                });
+    }
+
+    // ["월 09:00", "수 10:30"] → 요일 버튼을 선택하고 시간 버튼에 그 시간 표시
+    private void showSchedule(List<String> schedule) {
+        if (schedule == null) {
+            return;
+        }
+        boolean hasMonday = false;
+        for (String item : schedule) {
+            int day = Arrays.asList(DAY_NAMES).indexOf(item.substring(0, 1));
+            hours[day] = Integer.parseInt(item.substring(2, 4));
+            minutes[day] = Integer.parseInt(item.substring(5, 7));
+            timeButtons[day].setText(timeText(day));
+            binding.toggleDay.check(dayButtonIds[day]);
+            if (day == 0) {
+                hasMonday = true;
+            }
+        }
+        // 월요일은 처음부터 선택돼 있으니, 시간표에 없으면 풀어 줌
+        if (!hasMonday && !schedule.isEmpty()) {
+            binding.toggleDay.uncheck(R.id.btnDayMon);
+        }
     }
 
     // 시계 창을 띄워서 그 요일의 시작 시간 고르기
@@ -119,7 +172,7 @@ public class CreateCourseActivity extends AppCompatActivity {
         return String.format(Locale.KOREA, "%02d:%02d", hours[day], minutes[day]);
     }
 
-    // 입력값 검사 → 안 겹치는 참여 코드 찾기 → 저장
+    // 입력값 검사 → (개설) 안 겹치는 참여 코드 찾기 → 저장 / (수정) 바로 저장
     private void tryCreate() {
         String name = textOf(binding.editCourseName).trim();
         String section = textOf(binding.editSection).trim();
@@ -146,6 +199,11 @@ public class CreateCourseActivity extends AppCompatActivity {
             }
         }
 
+        if (editCourseId != null) {
+            updateCourse(name, section, semester, schedule);
+            return;
+        }
+
         Map<String, Object> course = new HashMap<>();
         course.put("name", name);
         if (!section.isEmpty()) {
@@ -157,6 +215,24 @@ public class CreateCourseActivity extends AppCompatActivity {
 
         setLoading(true);
         findUnusedCode(course);
+    }
+
+    // 수정 모드: 입력칸에 있는 값만 바꿈. 참여 코드, 학생 수, 진행 중인 수업은 그대로
+    private void updateCourse(String name, String section, String semester, List<String> schedule) {
+        Map<String, Object> changes = new HashMap<>();
+        changes.put("name", name);
+        changes.put("section", section.isEmpty() ? FieldValue.delete() : section);
+        changes.put("semester", semester);
+        changes.put("schedule", schedule);
+
+        setLoading(true);
+        db.collection(FirestorePaths.COURSES).document(editCourseId)
+                .update(changes)
+                .addOnSuccessListener(unused -> {
+                    Toast.makeText(this, "과목 정보를 저장했어요", Toast.LENGTH_SHORT).show();
+                    finish();
+                })
+                .addOnFailureListener(e -> fail());
     }
 
     // 무작위 코드를 만들고, 이미 그 코드를 쓰는 과목이 있으면 다시 만듦
@@ -227,12 +303,20 @@ public class CreateCourseActivity extends AppCompatActivity {
 
     private void fail() {
         setLoading(false);
-        Toast.makeText(this, "과목을 만들지 못했어요. 다시 시도해 주세요", Toast.LENGTH_LONG).show();
+        String message = editCourseId != null
+                ? "저장하지 못했어요. 다시 시도해 주세요"
+                : "과목을 만들지 못했어요. 다시 시도해 주세요";
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
     private void setLoading(boolean loading) {
+        boolean editing = editCourseId != null;
         binding.btnCreate.setEnabled(!loading);
-        binding.btnCreate.setText(loading ? "만드는 중..." : "개설하기");
+        if (loading) {
+            binding.btnCreate.setText(editing ? "저장하는 중..." : "만드는 중...");
+        } else {
+            binding.btnCreate.setText(editing ? "저장하기" : "개설하기");
+        }
     }
 
     private String textOf(EditText editText) {

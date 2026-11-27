@@ -2,12 +2,14 @@ package com.gyaut.app.course;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.PopupMenu;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.firestore.FieldValue;
@@ -18,7 +20,7 @@ import com.gyaut.app.common.IntentKeys;
 import com.gyaut.app.common.WindowInsetsHelper;
 import com.gyaut.app.databinding.ActivityCourseDetailBinding;
 
-// 교수: 과목 하나의 상세 화면. 여기서 수업을 시작하고 끝냄
+// 교수: 과목 하나의 상세 화면. 여기서 수업을 시작하고 끝내고, 과목을 수정함
 public class CourseDetailActivity extends AppCompatActivity {
 
     private ActivityCourseDetailBinding binding;
@@ -44,6 +46,7 @@ public class CourseDetailActivity extends AppCompatActivity {
         binding.btnSession.setOnClickListener(v -> onSessionClick());
         binding.btnEndSession.setOnClickListener(v -> confirmEndSession());
         binding.btnCopyCode.setOnClickListener(v -> copyCode());
+        binding.btnMore.setOnClickListener(v -> showMenu());
         binding.btnBack.setOnClickListener(v -> finish());
     }
 
@@ -59,7 +62,7 @@ public class CourseDetailActivity extends AppCompatActivity {
         courseListener.remove();
     }
 
-    // 과목 문서를 실시간으로 지켜봄 (학생 수, 수업 진행 여부가 바뀌면 바로 반영)
+    // 과목 문서를 실시간으로 지켜봄 (학생 수, 수업 진행 여부, 수정한 내용이 바로 반영)
     private void listenCourse() {
         courseListener = db.collection(FirestorePaths.COURSES).document(courseId)
                 .addSnapshotListener((doc, error) -> {
@@ -81,6 +84,19 @@ public class CourseDetailActivity extends AppCompatActivity {
         binding.btnSession.setEnabled(true);
         binding.btnEndSession.setVisibility(live ? View.VISIBLE : View.GONE);
         binding.btnCopyCode.setEnabled(true);
+    }
+
+    // ⋮ 메뉴. 지금은 과목 수정 하나
+    private void showMenu() {
+        PopupMenu menu = new PopupMenu(this, binding.btnMore);
+        menu.getMenu().add("과목 수정");
+        menu.setOnMenuItemClickListener(item -> {
+            Intent intent = new Intent(this, CreateCourseActivity.class);
+            intent.putExtra(IntentKeys.COURSE_ID, courseId); // 과목 ID를 넘기면 수정 모드
+            startActivity(intent);
+            return true;
+        });
+        menu.show();
     }
 
     // 수업 중이면 교탁 모드로, 아니면 수업 시작
