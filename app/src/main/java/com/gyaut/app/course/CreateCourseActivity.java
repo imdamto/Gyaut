@@ -85,6 +85,7 @@ public class CreateCourseActivity extends AppCompatActivity {
 
         binding.editSemester.setText(defaultSemester());
         binding.btnCreate.setOnClickListener(v -> tryCreate());
+        binding.btnBack.setOnClickListener(v -> finish());
     }
 
     // 오늘 날짜로 학기 미리 채우기 (3~8월은 1학기, 9~12월은 2학기, 1~2월은 전년도 2학기)

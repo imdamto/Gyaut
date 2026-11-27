@@ -44,6 +44,7 @@ public class CourseDetailActivity extends AppCompatActivity {
         binding.btnSession.setOnClickListener(v -> onSessionClick());
         binding.btnEndSession.setOnClickListener(v -> confirmEndSession());
         binding.btnCopyCode.setOnClickListener(v -> copyCode());
+        binding.btnBack.setOnClickListener(v -> finish());
     }
 
     @Override
