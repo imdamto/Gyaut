@@ -31,6 +31,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 // 내 과목 화면. 학생과 교수가 같이 쓰고, 역할에 따라 + 버튼이 여는 화면이 달라짐
 public class CourseListActivity extends AppCompatActivity {
@@ -139,7 +141,7 @@ public class CourseListActivity extends AppCompatActivity {
         }
     }
 
-    // users/{uid}/myCourses를 실시간으로 지켜봄 → 과목을 개설·등록하면 목록에 바로 나타남
+    // users/{uid}/myCourses를 실시간으로 지켜봄 → 과목을 개설·등록·삭제하면 목록에 바로 반영
     private void listenMyCourses() {
         myCoursesListener = db.collection(FirestorePaths.USERS).document(auth.getCurrentUser().getUid())
                 .collection(FirestorePaths.MY_COURSES)
@@ -149,11 +151,26 @@ public class CourseListActivity extends AppCompatActivity {
                         return;
                     }
                     // 문서 ID가 곧 과목 ID. 처음 보는 과목만 구독 시작
+                    Set<String> ids = new HashSet<>();
                     for (DocumentSnapshot doc : snapshot.getDocuments()) {
                         String courseId = doc.getId();
+                        ids.add(courseId);
                         if (!courseListeners.containsKey(courseId)) {
                             courseListeners.put(courseId, listenCourse(courseId));
                         }
+                    }
+
+                    // 내 과목 목록에서 빠진 과목은 구독을 끊고 화면에서도 지움
+                    List<String> removed = new ArrayList<>();
+                    for (String courseId : courseListeners.keySet()) {
+                        if (!ids.contains(courseId)) {
+                            removed.add(courseId);
+                        }
+                    }
+                    for (String courseId : removed) {
+                        courseListeners.get(courseId).remove();
+                        courseListeners.remove(courseId);
+                        courses.remove(courseId);
                     }
                     showCourses();
                 });
@@ -163,7 +180,12 @@ public class CourseListActivity extends AppCompatActivity {
     private ListenerRegistration listenCourse(String courseId) {
         return db.collection(FirestorePaths.COURSES).document(courseId)
                 .addSnapshotListener((doc, error) -> {
-                    if (error != null || !doc.exists()) {
+                    if (error != null) {
+                        return;
+                    }
+                    if (!doc.exists()) {
+                        courses.remove(courseId); // 교수가 과목을 삭제함 → 카드에서 지움
+                        showCourses();
                         return;
                     }
                     courses.put(courseId, Course.from(doc));
