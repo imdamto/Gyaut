@@ -10,11 +10,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.WriteBatch;
 import com.gyaut.app.R;
 import com.gyaut.app.auth.LoginActivity;
 import com.gyaut.app.common.FirestorePaths;
@@ -28,10 +32,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.HashSet;
 import java.util.Set;
 
 // 내 과목 화면. 학생과 교수가 같이 쓰고, 역할에 따라 + 버튼이 여는 화면이 달라짐
@@ -61,7 +65,7 @@ public class CourseListActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         sessionStarter = new SessionStarter(this);
 
-        adapter = new CourseAdapter(course -> openCourse(course));
+        adapter = new CourseAdapter(course -> openCourse(course), course -> onCourseLongClick(course));
         binding.listCourses.setAdapter(adapter);
 
         binding.btnMore.setOnClickListener(v -> showMenu());
@@ -97,7 +101,7 @@ public class CourseListActivity extends AppCompatActivity {
                 });
     }
 
-    // 역할에 맞게 이름 표시, + 버튼이 열 화면, 빈 목록 안내, 다음 수업 카드 버튼 정하기
+    // 역할에 맞게 이름 표시, + 버튼이 열 화면, 빈 목록 안내, 분반 표시, 다음 수업 카드 버튼 정하기
     private void showUser(String name, boolean professor) {
         this.professor = professor;
         binding.tvUser.setText(name + " · " + (professor ? "교수" : "학생"));
@@ -111,7 +115,13 @@ public class CourseListActivity extends AppCompatActivity {
                 ? "아직 개설한 과목이 없어요\n오른쪽 위 + 로 과목을 만들어 보세요"
                 : "아직 등록한 과목이 없어요\n오른쪽 위 + 로 교수님께 받은 코드를 입력해 보세요");
 
+        adapter.setShowSection(professor);
         showNextClass(); // 역할을 알게 됐으니 카드 버튼을 다시 정함
+    }
+
+    // 교수는 분반까지(여러 분반을 가르칠 수 있으니까), 학생은 과목명만
+    private String courseTitle(Course course) {
+        return professor ? course.titleText() : course.name;
     }
 
     // ⋮ 메뉴. 지금은 로그아웃 하나
@@ -141,7 +151,37 @@ public class CourseListActivity extends AppCompatActivity {
         }
     }
 
-    // users/{uid}/myCourses를 실시간으로 지켜봄 → 과목을 개설·등록·삭제하면 목록에 바로 반영
+    // 과목 카드를 길게 눌렀을 때. 학생만 수강 취소 (교수는 상세 화면 ⋮에서 삭제)
+    private void onCourseLongClick(Course course) {
+        if (professor) {
+            return;
+        }
+        new MaterialAlertDialogBuilder(this)
+                .setMessage(course.name + " 수강을 취소할까요?")
+                .setPositiveButton("수강 취소", (dialog, which) -> leaveCourse(course))
+                .setNegativeButton("아니요", null)
+                .show();
+    }
+
+    // 등록의 반대: 내 멤버 문서, 내 과목 목록 문서를 지우고 학생 수 -1
+    private void leaveCourse(Course course) {
+        String uid = auth.getCurrentUser().getUid();
+        DocumentReference courseRef = db.collection(FirestorePaths.COURSES).document(course.id);
+
+        WriteBatch batch = db.batch();
+        batch.delete(courseRef.collection(FirestorePaths.MEMBERS).document(uid));
+        batch.delete(db.collection(FirestorePaths.USERS).document(uid)
+                .collection(FirestorePaths.MY_COURSES).document(course.id));
+        batch.update(courseRef, "studentCount", FieldValue.increment(-1));
+
+        batch.commit()
+                .addOnSuccessListener(unused ->
+                        Toast.makeText(this, "수강을 취소했어요", Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "수강을 취소하지 못했어요. 다시 시도해 주세요", Toast.LENGTH_LONG).show());
+    }
+
+    // users/{uid}/myCourses를 실시간으로 지켜봄 → 과목을 개설·등록·삭제·수강 취소하면 목록에 바로 반영
     private void listenMyCourses() {
         myCoursesListener = db.collection(FirestorePaths.USERS).document(auth.getCurrentUser().getUid())
                 .collection(FirestorePaths.MY_COURSES)
@@ -188,9 +228,25 @@ public class CourseListActivity extends AppCompatActivity {
                         showCourses();
                         return;
                     }
-                    courses.put(courseId, Course.from(doc));
+                    Course updated = Course.from(doc);
+                    Course before = courses.put(courseId, updated); // put은 그 자리에 있던 이전 값을 돌려줌
+
+                    // 보고 있는 동안 "수업 중 아님 → 수업 중"으로 바뀌었으면 학생에게 알림
+                    boolean started = before != null
+                            && before.liveSessionId == null
+                            && updated.liveSessionId != null;
+                    if (started && !professor) {
+                        notifyStarted(updated);
+                    }
                     showCourses();
                 });
+    }
+
+    // 학생: 화면 아래에 "OO 수업이 시작됐어요 [입장]"
+    private void notifyStarted(Course course) {
+        Snackbar.make(binding.getRoot(), course.name + " 수업이 시작됐어요", Snackbar.LENGTH_LONG)
+                .setAction("입장", v -> openCourse(course))
+                .show();
     }
 
     // 지금까지 받은 과목들을 이름순으로 정렬해서 표시
@@ -225,8 +281,7 @@ public class CourseListActivity extends AppCompatActivity {
             binding.cardNext.setStrokeColor(liveColor);
             binding.tvNextLabel.setTextColor(liveColor);
             binding.tvNextLabel.setText("● LIVE · 지금 수업 중");
-            binding.tvNextName.setText(liveCourse.titleText());
-            binding.tvNextHint.setVisibility(View.GONE);
+            binding.tvNextName.setText(courseTitle(liveCourse));
             binding.btnNext.setVisibility(View.VISIBLE);
             binding.btnNext.setText(professor ? "교탁 모드 열기" : "입장하기");
             binding.btnNext.setOnClickListener(v -> {
@@ -242,8 +297,7 @@ public class CourseListActivity extends AppCompatActivity {
             binding.cardNext.setStrokeColor(primaryColor);
             binding.tvNextLabel.setTextColor(primaryColor);
             binding.tvNextLabel.setText("다음 수업 · " + whenText(nextStart));
-            binding.tvNextName.setText(nextCourse.titleText());
-            binding.tvNextHint.setVisibility(professor ? View.GONE : View.VISIBLE);
+            binding.tvNextName.setText(courseTitle(nextCourse));
             binding.btnNext.setVisibility(professor ? View.VISIBLE : View.GONE);
             binding.btnNext.setText("수업 시작");
             binding.btnNext.setOnClickListener(v -> sessionStarter.start(nextCourse.id));

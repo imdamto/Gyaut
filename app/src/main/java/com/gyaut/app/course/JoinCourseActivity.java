@@ -113,21 +113,12 @@ public class JoinCourseActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> failJoin());
     }
 
-    // 내 이름을 먼저 읽음. 교수 상세 화면의 학생 목록에 보여 줄 이름
-    private void saveJoin(Course course, DocumentReference myCourseRef) {
-        db.collection(FirestorePaths.USERS).document(uid)
-                .get()
-                .addOnSuccessListener(userDoc -> commitJoin(course, myCourseRef, userDoc.getString("name")))
-                .addOnFailureListener(e -> failJoin());
-    }
-
     // 멤버 추가, 내 과목 추가, 학생 수 +1을 한 번에 저장
-    private void commitJoin(Course course, DocumentReference myCourseRef, String name) {
+    private void saveJoin(Course course, DocumentReference myCourseRef) {
         DocumentReference courseRef = db.collection(FirestorePaths.COURSES).document(course.id);
 
         Map<String, Object> member = new HashMap<>();
         member.put("role", UserRole.STUDENT);
-        member.put("name", name);
         member.put("warningCount", 0);
 
         WriteBatch batch = db.batch();
