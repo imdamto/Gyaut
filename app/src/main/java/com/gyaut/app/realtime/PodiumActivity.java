@@ -19,6 +19,7 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.FieldValue;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,6 +73,9 @@ public class PodiumActivity extends AppCompatActivity {
 
         // 왼쪽 위 뒤로가기 (수업은 계속 진행 중, 교탁 화면만 닫힘)
         binding.btnBack.setOnClickListener(v -> finish());
+
+        // 수업 종료
+        binding.btnEndClass.setOnClickListener(v -> confirmEndClass());
 
     }
 
@@ -176,6 +180,27 @@ public class PodiumActivity extends AppCompatActivity {
                 .update("answered", true, "answeredAt", FieldValue.serverTimestamp())
                 .addOnFailureListener(e ->
                         Toast.makeText(this, "저장 실패: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
+
+    // 수업 종료 확인창
+    private void confirmEndClass() {
+        new MaterialAlertDialogBuilder(this)
+                .setMessage("수업을 종료할까요?")
+                .setPositiveButton("종료", (dialog, which) -> endClass())
+                .setNegativeButton("취소", null)
+                .show();
+    }
+
+    // 과목 문서에서 진행 중인 수업 ID 지우기 -> 학생 화면도 자동으로 닫힘
+    private void endClass() {
+        db.collection(FirestorePaths.COURSES).document(courseId)
+                .update("liveSessionId", FieldValue.delete())
+                .addOnSuccessListener(unused -> {
+                    Toast.makeText(this, "수업을 종료했어요", Toast.LENGTH_SHORT).show();
+                    finish();
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "수업을 종료하지 못했어요. 다시 시도해 주세요", Toast.LENGTH_LONG).show());
     }
 
     // 3분 안에 누른 사람 세서 %, 몇명 중 몇명, 막대 바꾸기
