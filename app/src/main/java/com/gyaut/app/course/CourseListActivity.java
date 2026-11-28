@@ -101,7 +101,7 @@ public class CourseListActivity extends AppCompatActivity {
                 });
     }
 
-    // 역할에 맞게 이름 표시, + 버튼이 열 화면, 빈 목록 안내, 다음 수업 카드 버튼 정하기
+    // 역할에 맞게 이름 표시, + 버튼이 열 화면, 빈 목록 안내, 분반 표시, 다음 수업 카드 버튼 정하기
     private void showUser(String name, boolean professor) {
         this.professor = professor;
         binding.tvUser.setText(name + " · " + (professor ? "교수" : "학생"));
@@ -115,7 +115,13 @@ public class CourseListActivity extends AppCompatActivity {
                 ? "아직 개설한 과목이 없어요\n오른쪽 위 + 로 과목을 만들어 보세요"
                 : "아직 등록한 과목이 없어요\n오른쪽 위 + 로 교수님께 받은 코드를 입력해 보세요");
 
+        adapter.setShowSection(professor);
         showNextClass(); // 역할을 알게 됐으니 카드 버튼을 다시 정함
+    }
+
+    // 교수는 분반까지(여러 분반을 가르칠 수 있으니까), 학생은 과목명만
+    private String courseTitle(Course course) {
+        return professor ? course.titleText() : course.name;
     }
 
     // ⋮ 메뉴. 지금은 로그아웃 하나
@@ -151,7 +157,7 @@ public class CourseListActivity extends AppCompatActivity {
             return;
         }
         new MaterialAlertDialogBuilder(this)
-                .setMessage(course.titleText() + " 수강을 취소할까요?")
+                .setMessage(course.name + " 수강을 취소할까요?")
                 .setPositiveButton("수강 취소", (dialog, which) -> leaveCourse(course))
                 .setNegativeButton("아니요", null)
                 .show();
@@ -238,7 +244,7 @@ public class CourseListActivity extends AppCompatActivity {
 
     // 학생: 화면 아래에 "OO 수업이 시작됐어요 [입장]"
     private void notifyStarted(Course course) {
-        Snackbar.make(binding.getRoot(), course.titleText() + " 수업이 시작됐어요", Snackbar.LENGTH_LONG)
+        Snackbar.make(binding.getRoot(), course.name + " 수업이 시작됐어요", Snackbar.LENGTH_LONG)
                 .setAction("입장", v -> openCourse(course))
                 .show();
     }
@@ -275,8 +281,7 @@ public class CourseListActivity extends AppCompatActivity {
             binding.cardNext.setStrokeColor(liveColor);
             binding.tvNextLabel.setTextColor(liveColor);
             binding.tvNextLabel.setText("● LIVE · 지금 수업 중");
-            binding.tvNextName.setText(liveCourse.titleText());
-            binding.tvNextHint.setVisibility(View.GONE);
+            binding.tvNextName.setText(courseTitle(liveCourse));
             binding.btnNext.setVisibility(View.VISIBLE);
             binding.btnNext.setText(professor ? "교탁 모드 열기" : "입장하기");
             binding.btnNext.setOnClickListener(v -> {
@@ -292,8 +297,7 @@ public class CourseListActivity extends AppCompatActivity {
             binding.cardNext.setStrokeColor(primaryColor);
             binding.tvNextLabel.setTextColor(primaryColor);
             binding.tvNextLabel.setText("다음 수업 · " + whenText(nextStart));
-            binding.tvNextName.setText(nextCourse.titleText());
-            binding.tvNextHint.setVisibility(professor ? View.GONE : View.VISIBLE);
+            binding.tvNextName.setText(courseTitle(nextCourse));
             binding.btnNext.setVisibility(professor ? View.VISIBLE : View.GONE);
             binding.btnNext.setText("수업 시작");
             binding.btnNext.setOnClickListener(v -> sessionStarter.start(nextCourse.id));

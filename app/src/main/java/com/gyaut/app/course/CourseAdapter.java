@@ -28,10 +28,16 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
 
     private final OnCourseClickListener listener;
     private final OnCourseLongClickListener longListener;
+    private boolean showSection; // 교수만 분반까지 보여 줌 (학생은 자기 분반만 들으니까 과목명만)
 
     public CourseAdapter(OnCourseClickListener listener, OnCourseLongClickListener longListener) {
         this.listener = listener;
         this.longListener = longListener;
+    }
+
+    public void setShowSection(boolean showSection) {
+        this.showSection = showSection;
+        notifyDataSetChanged();
     }
 
     // 목록을 새 내용으로 통째로 바꿈
@@ -52,7 +58,7 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
     @Override
     public void onBindViewHolder(@NonNull CourseViewHolder holder, int position) {
         Course course = courses.get(position);
-        holder.bind(course);
+        holder.bind(course, showSection);
         holder.itemView.setOnClickListener(v -> listener.onCourseClick(course));
         holder.itemView.setOnLongClickListener(v -> {
             longListener.onCourseLongClick(course);
@@ -74,8 +80,8 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
             this.binding = binding;
         }
 
-        void bind(Course course) {
-            binding.tvCourseName.setText(course.titleText());
+        void bind(Course course, boolean showSection) {
+            binding.tvCourseName.setText(showSection ? course.titleText() : course.name);
             binding.tvCourseInfo.setText(course.infoText());
             binding.tvLive.setVisibility(course.liveSessionId != null ? View.VISIBLE : View.GONE);
         }
