@@ -268,17 +268,13 @@ public class CreateCourseActivity extends AppCompatActivity {
 
         Map<String, Object> member = new HashMap<>();
         member.put("role", UserRole.PROFESSOR);
-        member.put("joinedAt", FieldValue.serverTimestamp());
-
-        Map<String, Object> myCourse = new HashMap<>();
-        myCourse.put("courseName", course.get("name"));
 
         // batch: 세 문서가 전부 저장되거나 전부 실패하게 묶음
         WriteBatch batch = db.batch();
         batch.set(courseRef, course);
         batch.set(courseRef.collection(FirestorePaths.MEMBERS).document(uid), member);
         batch.set(db.collection(FirestorePaths.USERS).document(uid)
-                .collection(FirestorePaths.MY_COURSES).document(courseRef.getId()), myCourse);
+                .collection(FirestorePaths.MY_COURSES).document(courseRef.getId()), new HashMap<>()); // 문서 ID(과목 ID)만 있으면 됨
 
         batch.commit()
                 .addOnSuccessListener(unused -> showCode(code))
