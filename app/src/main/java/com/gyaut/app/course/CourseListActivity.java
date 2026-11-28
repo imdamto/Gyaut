@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -188,9 +189,25 @@ public class CourseListActivity extends AppCompatActivity {
                         showCourses();
                         return;
                     }
-                    courses.put(courseId, Course.from(doc));
+                    Course updated = Course.from(doc);
+                    Course before = courses.put(courseId, updated); // put은 그 자리에 있던 이전 값을 돌려줌
+
+                    // 보고 있는 동안 "수업 중 아님 → 수업 중"으로 바뀌었으면 학생에게 알림
+                    boolean started = before != null
+                            && before.liveSessionId == null
+                            && updated.liveSessionId != null;
+                    if (started && !professor) {
+                        notifyStarted(updated);
+                    }
                     showCourses();
                 });
+    }
+
+    // 학생: 화면 아래에 "OO 수업이 시작됐어요 [입장]"
+    private void notifyStarted(Course course) {
+        Snackbar.make(binding.getRoot(), course.titleText() + " 수업이 시작됐어요", Snackbar.LENGTH_LONG)
+                .setAction("입장", v -> openCourse(course))
+                .show();
     }
 
     // 지금까지 받은 과목들을 이름순으로 정렬해서 표시
