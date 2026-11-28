@@ -36,6 +36,9 @@ public class ClassActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private CountDownTimer timer;
     private ListenerRegistration confusionListener;
+    private ListenerRegistration courseListener;
+    // 임시 메뉴로 들어오면 true (테스트 과목이라 수업 종료 감지 안 함)
+    private boolean testMode = true;
     // 학생들이 누른 시간 모아두기 (다시 셀 때 씀)
     private List<Long> pressedTimes = new ArrayList<>();
     private Handler handler = new Handler(Looper.getMainLooper());
@@ -57,6 +60,7 @@ public class ClassActivity extends AppCompatActivity {
         if (getIntent().getStringExtra(IntentKeys.COURSE_ID) != null) {
             courseId = getIntent().getStringExtra(IntentKeys.COURSE_ID);
             sessionId = getIntent().getStringExtra(IntentKeys.SESSION_ID);
+            testMode = false;
         }
 
         loadClassInfo();
@@ -79,6 +83,9 @@ public class ClassActivity extends AppCompatActivity {
 
         // 갸웃 원 누르면 저장
         binding.cardGyaut.setOnClickListener(v -> pressGyaut());
+
+        // 왼쪽 위 뒤로가기
+        binding.btnBack.setOnClickListener(v -> finish());
     }
 
     // 과목명, 시간표, 주차, 주제 불러오기
@@ -178,6 +185,9 @@ public class ClassActivity extends AppCompatActivity {
         super.onStart();
         listenConfusion();
         handler.post(recount);
+        if (!testMode) {
+            listenClassEnd();
+        }
     }
 
     @Override
@@ -187,6 +197,10 @@ public class ClassActivity extends AppCompatActivity {
         if (confusionListener != null) {
             confusionListener.remove();
             confusionListener = null;
+        }
+        if (courseListener != null) {
+            courseListener.remove();
+            courseListener = null;
         }
         handler.removeCallbacks(recount);
     }
@@ -211,6 +225,21 @@ public class ClassActivity extends AppCompatActivity {
                         }
                     }
                     updateCount();
+                });
+    }
+
+    // 교수님이 수업 끝내면 (과목 문서의 liveSessionId가 지워지거나 바뀌면) 화면 닫기
+    private void listenClassEnd() {
+        courseListener = db.collection(FirestorePaths.COURSES).document(courseId)
+                .addSnapshotListener((doc, error) -> {
+                    if (error != null || doc == null) {
+                        return;
+                    }
+                    String liveSessionId = doc.getString("liveSessionId");
+                    if (!sessionId.equals(liveSessionId)) {
+                        Toast.makeText(this, "수업이 끝났어요", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
                 });
     }
 
