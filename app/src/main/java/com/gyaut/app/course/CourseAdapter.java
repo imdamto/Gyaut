@@ -17,15 +17,21 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
 
     private final List<Course> courses = new ArrayList<>();
 
-    // 카드를 눌렀을 때 화면(Activity)에 알려 주는 통로
+    // 카드를 눌렀을 때 / 길게 눌렀을 때 화면(Activity)에 알려 주는 통로
     public interface OnCourseClickListener {
         void onCourseClick(Course course);
     }
 
-    private final OnCourseClickListener listener;
+    public interface OnCourseLongClickListener {
+        void onCourseLongClick(Course course);
+    }
 
-    public CourseAdapter(OnCourseClickListener listener) {
+    private final OnCourseClickListener listener;
+    private final OnCourseLongClickListener longListener;
+
+    public CourseAdapter(OnCourseClickListener listener, OnCourseLongClickListener longListener) {
         this.listener = listener;
+        this.longListener = longListener;
     }
 
     // 목록을 새 내용으로 통째로 바꿈
@@ -48,6 +54,10 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
         Course course = courses.get(position);
         holder.bind(course);
         holder.itemView.setOnClickListener(v -> listener.onCourseClick(course));
+        holder.itemView.setOnLongClickListener(v -> {
+            longListener.onCourseLongClick(course);
+            return true; // 길게 누르기를 여기서 처리했다는 뜻 (짧게 누르기가 같이 불리지 않음)
+        });
     }
 
     @Override

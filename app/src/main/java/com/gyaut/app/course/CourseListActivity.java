@@ -13,9 +13,12 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.WriteBatch;
 import com.gyaut.app.R;
 import com.gyaut.app.auth.LoginActivity;
 import com.gyaut.app.common.FirestorePaths;
@@ -29,10 +32,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.HashSet;
 import java.util.Set;
 
 // 내 과목 화면. 학생과 교수가 같이 쓰고, 역할에 따라 + 버튼이 여는 화면이 달라짐
@@ -62,7 +65,7 @@ public class CourseListActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         sessionStarter = new SessionStarter(this);
 
-        adapter = new CourseAdapter(course -> openCourse(course));
+        adapter = new CourseAdapter(course -> openCourse(course), course -> onCourseLongClick(course));
         binding.listCourses.setAdapter(adapter);
 
         binding.btnMore.setOnClickListener(v -> showMenu());
@@ -142,7 +145,37 @@ public class CourseListActivity extends AppCompatActivity {
         }
     }
 
-    // users/{uid}/myCourses를 실시간으로 지켜봄 → 과목을 개설·등록·삭제하면 목록에 바로 반영
+    // 과목 카드를 길게 눌렀을 때. 학생만 수강 취소 (교수는 상세 화면 ⋮에서 삭제)
+    private void onCourseLongClick(Course course) {
+        if (professor) {
+            return;
+        }
+        new MaterialAlertDialogBuilder(this)
+                .setMessage(course.titleText() + " 수강을 취소할까요?")
+                .setPositiveButton("수강 취소", (dialog, which) -> leaveCourse(course))
+                .setNegativeButton("아니요", null)
+                .show();
+    }
+
+    // 등록의 반대: 내 멤버 문서, 내 과목 목록 문서를 지우고 학생 수 -1
+    private void leaveCourse(Course course) {
+        String uid = auth.getCurrentUser().getUid();
+        DocumentReference courseRef = db.collection(FirestorePaths.COURSES).document(course.id);
+
+        WriteBatch batch = db.batch();
+        batch.delete(courseRef.collection(FirestorePaths.MEMBERS).document(uid));
+        batch.delete(db.collection(FirestorePaths.USERS).document(uid)
+                .collection(FirestorePaths.MY_COURSES).document(course.id));
+        batch.update(courseRef, "studentCount", FieldValue.increment(-1));
+
+        batch.commit()
+                .addOnSuccessListener(unused ->
+                        Toast.makeText(this, "수강을 취소했어요", Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "수강을 취소하지 못했어요. 다시 시도해 주세요", Toast.LENGTH_LONG).show());
+    }
+
+    // users/{uid}/myCourses를 실시간으로 지켜봄 → 과목을 개설·등록·삭제·수강 취소하면 목록에 바로 반영
     private void listenMyCourses() {
         myCoursesListener = db.collection(FirestorePaths.USERS).document(auth.getCurrentUser().getUid())
                 .collection(FirestorePaths.MY_COURSES)
